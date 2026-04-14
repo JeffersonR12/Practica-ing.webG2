@@ -1,8 +1,12 @@
 <?php
 $host = "localhost";
-$user = "root";  
-$pass = "";    
+$user = "root";
+$pass = "";
 $db   = "patrimonio";
 
-$conexion = mysqli_connect($host, $user, $pass, $db);
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Error de conexión: " . $conn->connect_error);
+}
 ?>
