@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Patrimonial</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- ============================================= -->
+    <!-- NAVEGACIÓN PRINCIPAL                         -->
+    <!-- ============================================= -->
+    <nav class="navbar">
+        <div class="nav-brand">🏛️ Sistema Patrimonial</div>
+        <ul class="nav-menu">
+            <li><a href="pages/bienes.html" class="nav-link">📦 Bienes</a></li>
+            <li><a href="pages/desplazamiento.html" class="nav-link">🔄 Desplazar</a></li>
+            <li><a href="pages/reportes.html" class="nav-link">📊 Reportes</a></li>
+            <li><a href="pages/historial.html" class="nav-link">📋 Historial</a></li>
+        </ul>
+        <div class="nav-user">
+            <span>👤 Admin</span>
+            <!-- 🔧 BACKEND PHP: Aquí se mostrará el usuario logueado -->
+        </div>
+    </nav>
+
+    <!-- ============================================= -->
+    <!-- CONTENEDOR PRINCIPAL                         -->
+    <!-- ============================================= -->
+    <main class="container" id="app-container">
+        <h1>Bienvenido al Sistema de Gestión Patrimonial</h1>
+        <p>Seleccione una opción del menú para comenzar.</p>
+        
+        <!-- Dashboard Rápido -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <h3>📦 Total Bienes</h3>
+                <p id="total-bienes">--</p>
+            </div>
+            <div class="card">
+                <h3>🔄 Desplazamientos Hoy</h3>
+                <p id="desplazamientos-hoy">--</p>
+            </div>
+            <div class="card">
+                <h3>👥 Personas Registradas</h3>
+                <p id="total-personas">--</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- ============================================= -->
+    <!-- SCRIPTS                                      -->
+    <!-- ============================================= -->
+    <!-- 🔧 CONFIGURACIÓN API - CAMBIAR PARA PHP -->
+    <script src="js/config.js"></script>
+    
+    <!-- 🧪 MOCK API - ELIMINAR CUANDO PHP ESTÉ LISTO -->
+    <script src="js/api-mock.js"></script>
+    
+    <!-- 🌐 API REAL - DESCOMENTAR CUANDO PHP ESTÉ LISTO -->
+    <!-- <script src="js/api.js"></script> -->
+    
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
