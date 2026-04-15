@@ -1,28 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Desplazamiento de Bienes - Sistema Patrimonial</title>
-    <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
     <nav class="navbar">
-        <div class="nav-brand"><a href="../index.html">🏛️ Sistema Patrimonial</a></div>
-        <ul class="nav-menu">
-            <li><a href="bienes.html" class="nav-link">📦 Bienes</a></li>
-            <li><a href="desplazamiento.html" class="nav-link active">🔄 Desplazar</a></li>
-            <li><a href="reportes.html" class="nav-link">📊 Reportes</a></li>
-            <li><a href="historial.html" class="nav-link">📋 Historial</a></li>
-        </ul>
+      <div class="nav-brand">
+        <a href="../index.html">🏛️ Sistema Patrimonial</a>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="bienes.html" class="nav-link">📦 Bienes</a></li>
+        <li>
+          <a href="desplazamiento.html" class="nav-link active">🔄 Desplazar</a>
+        </li>
+        <li><a href="reportes.html" class="nav-link">📊 Reportes</a></li>
+        <li><a href="historial.html" class="nav-link">📋 Historial</a></li>
+      </ul>
     </nav>
 
     <main class="container">
-        <div class="page-header">
-            <h1>🔄 Desplazamiento de Bienes</h1>
-        </div>
+      <div class="page-header">
+        <h1>🔄 Desplazamiento de Bienes</h1>
+      </div>
 
-        <!-- 
+      <!-- 
             🔧 BACKEND PHP: Este formulario enviará datos a desplazamientos.php?action=crear
             La lógica de negocio (BLL) debe:
             1. Generar número de desplazamiento único
@@ -30,158 +34,195 @@
             3. Registrar en historial_bien
             4. Crear registros en desplazamiento y detalle_desplazamiento
         -->
-        
-        <div class="form-container">
-            <!-- ============================================= -->
-            <!-- INFORMACIÓN DEL DESPLAZAMIENTO               -->
-            <!-- ============================================= -->
-            <div class="form-section">
-                <h2>📋 Datos del Desplazamiento</h2>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="numeroDesplazamiento">N° Desplazamiento</label>
-                        <input type="text" id="numeroDesplazamiento" readonly 
-                               placeholder="Se generará automáticamente">
-                        <!-- 🔧 PHP: Backend genera este número -->
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="fechaDesplazamiento">Fecha</label>
-                        <input type="text" id="fechaDesplazamiento" readonly>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="personaOrigen">Persona Origen *</label>
-                        <select id="personaOrigen" required>
-                            <option value="">-- Seleccionar persona origen --</option>
-                        </select>
-                        <small>Filtrar bienes por persona actual</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="personaDestino">Persona Destino *</label>
-                        <select id="personaDestino" required>
-                            <option value="">-- Seleccionar persona destino --</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="motivoDesplazamiento">Motivo *</label>
-                    <select id="motivoDesplazamiento" required>
-                        <option value="">-- Seleccionar motivo --</option>
-                        <option value="Renuncia">Renuncia</option>
-                        <option value="Cambio de área">Cambio de área</option>
-                        <option value="Reasignación">Reasignación</option>
-                        <option value="Préstamo">Préstamo</option>
-                        <option value="Devolución">Devolución</option>
-                        <option value="Mantenimiento">Mantenimiento</option>
-                        <option value="Otro">Otro</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="observacionDesplazamiento">Observación</label>
-                    <textarea id="observacionDesplazamiento" rows="2" 
-                              placeholder="Detalles adicionales..."></textarea>
-                </div>
+
+      <div class="form-container">
+        <!-- ============================================= -->
+        <!-- INFORMACIÓN DEL DESPLAZAMIENTO               -->
+        <!-- ============================================= -->
+        <div class="form-section">
+          <h2>📋 Datos del Desplazamiento</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="numeroDesplazamiento">N° Desplazamiento</label>
+              <input
+                type="text"
+                id="numeroDesplazamiento"
+                readonly
+                placeholder="Se generará automáticamente"
+              />
+              <!-- 🔧 PHP: Backend genera este número -->
             </div>
 
-            <!-- ============================================= -->
-            <!-- SELECCIÓN DE BIENES                          -->
-            <!-- ============================================= -->
-            <div class="form-section">
-                <h2>📦 Selección de Bienes a Transferir</h2>
-                
-                <!-- Buscador de bienes -->
-                <div class="bienes-selector">
-                    <div class="search-box">
-                        <input type="text" id="buscadorBienes" 
-                               placeholder="🔍 Buscar por código o nombre..." 
-                               disabled>
-                        <button class="btn btn-secondary" id="btnBuscarBien" disabled>Buscar</button>
-                    </div>
-                    
-                    <!-- Lista de bienes disponibles (filtrados por persona origen) -->
-                    <div class="bienes-disponibles">
-                        <h3>Bienes asignados a persona origen</h3>
-                        <div class="bienes-list-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th><input type="checkbox" id="selectAllDisponibles"></th>
-                                        <th>Código</th>
-                                        <th>Nombre</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="bienesDisponiblesBody">
-                                    <tr><td colspan="4" class="text-center">Seleccione persona origen</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <!-- Botón de transferencia -->
-                    <div class="transfer-actions">
-                        <button class="btn btn-primary" id="btnAgregarSeleccionados">
-                            ➡️ Agregar Seleccionados
-                        </button>
-                    </div>
-                    
-                    <!-- Lista de bienes seleccionados para transferir -->
-                    <div class="bienes-seleccionados">
-                        <h3>Bienes a Transferir</h3>
-                        <div class="bienes-list-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Código</th>
-                                        <th>Nombre</th>
-                                        <th>Estado</th>
-                                        <th>Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="bienesSeleccionadosBody">
-                                    <tr><td colspan="4" class="text-center">No hay bienes seleccionados</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <div class="form-group">
+              <label for="fechaDesplazamiento">Fecha</label>
+              <input type="text" id="fechaDesplazamiento" readonly />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="personaOrigen">Persona Origen *</label>
+              <select id="personaOrigen" required>
+                <option value="">-- Seleccionar persona origen --</option>
+              </select>
+              <small>Filtrar bienes por persona actual</small>
             </div>
 
-            <!-- ============================================= -->
-            <!-- RESUMEN Y ACCIONES                           -->
-            <!-- ============================================= -->
-            <div class="form-section">
-                <div class="resumen-desplazamiento" id="resumenDesplazamiento">
-                    <h3>📊 Resumen del Desplazamiento</h3>
-                    <p><strong>Total bienes a transferir:</strong> <span id="totalBienesTransferir">0</span></p>
-                    <p><strong>Persona Origen:</strong> <span id="resumenOrigen">-</span></p>
-                    <p><strong>Persona Destino:</strong> <span id="resumenDestino">-</span></p>
-                </div>
-                
-                <div class="form-actions">
-                    <button class="btn btn-success btn-lg" id="btnConfirmarDesplazamiento" disabled>
-                        ✅ Confirmar Desplazamiento
-                    </button>
-                    <button class="btn btn-secondary" onclick="window.location.reload()">
-                        🔄 Limpiar Formulario
-                    </button>
-                </div>
+            <div class="form-group">
+              <label for="personaDestino">Persona Destino *</label>
+              <select id="personaDestino" required>
+                <option value="">-- Seleccionar persona destino --</option>
+              </select>
             </div>
+          </div>
+
+          <div class="form-group">
+            <label for="motivoDesplazamiento">Motivo *</label>
+            <select id="motivoDesplazamiento" required>
+              <option value="">-- Seleccionar motivo --</option>
+              <option value="Renuncia">Renuncia</option>
+              <option value="Cambio de área">Cambio de área</option>
+              <option value="Reasignación">Reasignación</option>
+              <option value="Préstamo">Préstamo</option>
+              <option value="Devolución">Devolución</option>
+              <option value="Mantenimiento">Mantenimiento</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="observacionDesplazamiento">Observación</label>
+            <textarea
+              id="observacionDesplazamiento"
+              rows="2"
+              placeholder="Detalles adicionales..."
+            ></textarea>
+          </div>
         </div>
+
+        <!-- ============================================= -->
+        <!-- SELECCIÓN DE BIENES                          -->
+        <!-- ============================================= -->
+        <div class="form-section">
+          <h2>📦 Selección de Bienes a Transferir</h2>
+
+          <!-- Buscador de bienes -->
+          <div class="bienes-selector">
+            <div class="search-box">
+              <input
+                type="text"
+                id="buscadorBienes"
+                placeholder="🔍 Buscar por código o nombre..."
+                disabled
+              />
+              <button class="btn btn-secondary" id="btnBuscarBien" disabled>
+                Buscar
+              </button>
+            </div>
+
+            <!-- Lista de bienes disponibles (filtrados por persona origen) -->
+            <div class="bienes-disponibles">
+              <h3>Bienes asignados a persona origen</h3>
+              <div class="bienes-list-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>
+                        <input type="checkbox" id="selectAllDisponibles" />
+                      </th>
+                      <th>Código</th>
+                      <th>Nombre</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bienesDisponiblesBody">
+                    <tr>
+                      <td colspan="4" class="text-center">
+                        Seleccione persona origen
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Botón de transferencia -->
+            <div class="transfer-actions">
+              <button class="btn btn-primary" id="btnAgregarSeleccionados">
+                ➡️ Agregar Seleccionados
+              </button>
+            </div>
+
+            <!-- Lista de bienes seleccionados para transferir -->
+            <div class="bienes-seleccionados">
+              <h3>Bienes a Transferir</h3>
+              <div class="bienes-list-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Nombre</th>
+                      <th>Estado</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bienesSeleccionadosBody">
+                    <tr>
+                      <td colspan="4" class="text-center">
+                        No hay bienes seleccionados
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- RESUMEN Y ACCIONES                           -->
+        <!-- ============================================= -->
+        <div class="form-section">
+          <div class="resumen-desplazamiento" id="resumenDesplazamiento">
+            <h3>📊 Resumen del Desplazamiento</h3>
+            <p>
+              <strong>Total bienes a transferir:</strong>
+              <span id="totalBienesTransferir">0</span>
+            </p>
+            <p>
+              <strong>Persona Origen:</strong> <span id="resumenOrigen">-</span>
+            </p>
+            <p>
+              <strong>Persona Destino:</strong>
+              <span id="resumenDestino">-</span>
+            </p>
+          </div>
+
+          <div class="form-actions">
+            <button
+              class="btn btn-success btn-lg"
+              id="btnConfirmarDesplazamiento"
+              disabled
+            >
+              ✅ Confirmar Desplazamiento
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick="window.location.reload()"
+            >
+              🔄 Limpiar Formulario
+            </button>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- Scripts -->
     <script src="../js/config.js"></script>
     <!--<script src="../js/api-mock.js"></script>-->
-    <script src="../js/api.js"></script> 
+    <script src="../js/api.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/modules/desplazamiento.js"></script>
-</body>
+  </body>
 </html>

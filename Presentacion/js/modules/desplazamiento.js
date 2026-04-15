@@ -50,44 +50,74 @@ class DesplazamientoModule {
     }
     
     async cargarBienes() {
-        try {
-            this.bienes = await API.getBienes();
-        } catch (error) {
-            console.error('Error al cargar bienes:', error);
-            Utils.showToast('Error al cargar bienes', 'error');
-        }
+    try {
+        console.log('📦 Cargando bienes desde API...');
+        const bienesRaw = await API.getBienes();
+        
+        // ✅ Asegurar que los IDs sean números
+        this.bienes = bienesRaw.map(b => ({
+            ...b,
+            id: parseInt(b.id)
+        }));
+        
+        console.log('✅ Bienes cargados:', this.bienes.length);
+    } catch (error) {
+        console.error('❌ Error al cargar bienes:', error);
+        Utils.showToast('Error al cargar bienes', 'error');
+        this.bienes = [];
     }
+}
     
     setupEventListeners() {
-        document.getElementById('personaOrigen')?.addEventListener('change', (e) => {
-            this.personaOrigenId = e.target.value ? parseInt(e.target.value) : null;
-            this.cargarBienesDisponibles();
-            this.habilitarBusqueda();
-        });
-        
-        document.getElementById('personaDestino')?.addEventListener('change', (e) => {
-            this.personaDestinoId = e.target.value ? parseInt(e.target.value) : null;
-            this.validarFormularioCompleto();
-        });
-        
-        document.getElementById('motivoDesplazamiento')?.addEventListener('change', () => {
-            this.validarFormularioCompleto();
-        });
-        
-        document.getElementById('buscadorBienes')?.addEventListener('input', () => this.filtrarBienesDisponibles());
-        document.getElementById('btnBuscarBien')?.addEventListener('click', () => this.filtrarBienesDisponibles());
-        
-        document.getElementById('selectAllDisponibles')?.addEventListener('change', (e) => {
-            this.seleccionarTodosDisponibles(e.target.checked);
-        });
-        
-        document.getElementById('btnAgregarSeleccionados')?.addEventListener('click', () => {
-            this.agregarBienesSeleccionados();
-        });
-        
-        document.getElementById('btnConfirmarDesplazamiento')?.addEventListener('click', () => {
-            this.confirmarDesplazamiento();
-        });
+    // Persona origen
+    document.getElementById('personaOrigen')?.addEventListener('change', (e) => {
+        this.personaOrigenId = e.target.value ? parseInt(e.target.value) : null;
+        console.log('👤 Persona origen seleccionada:', this.personaOrigenId); // Depuración
+        this.cargarBienesDisponibles();
+        this.habilitarBusqueda();
+    });
+    
+    // Buscador - Evento input (mientras escribe)
+    document.getElementById('buscadorBienes')?.addEventListener('input', () => {
+        console.log('⌨️ Escribiendo en buscador...'); // Depuración
+        this.filtrarBienesDisponibles();
+    });
+    
+    // Buscador - Evento keypress (Enter)
+    document.getElementById('buscadorBienes')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            console.log('⏎ Enter presionado en buscador');
+            this.filtrarBienesDisponibles();
+        }
+    });
+    
+    // Botón Buscar
+    document.getElementById('btnBuscarBien')?.addEventListener('click', () => {
+        console.log('🔍 Botón Buscar clickeado'); // Depuración
+        this.filtrarBienesDisponibles();
+    });
+    
+    // Resto de eventos...
+    document.getElementById('personaDestino')?.addEventListener('change', (e) => {
+        this.personaDestinoId = e.target.value ? parseInt(e.target.value) : null;
+        this.validarFormularioCompleto();
+    });
+    
+    document.getElementById('motivoDesplazamiento')?.addEventListener('change', () => {
+        this.validarFormularioCompleto();
+    });
+    
+    document.getElementById('selectAllDisponibles')?.addEventListener('change', (e) => {
+        this.seleccionarTodosDisponibles(e.target.checked);
+    });
+    
+    document.getElementById('btnAgregarSeleccionados')?.addEventListener('click', () => {
+        this.agregarBienesSeleccionados();
+    });
+    
+    document.getElementById('btnConfirmarDesplazamiento')?.addEventListener('click', () => {
+        this.confirmarDesplazamiento();
+    });
     }
     
     habilitarBusqueda() {
@@ -95,73 +125,117 @@ class DesplazamientoModule {
         const btnBuscar = document.getElementById('btnBuscarBien');
         
         if (buscador && btnBuscar) {
-            buscador.disabled = !this.personaOrigenId;
-            btnBuscar.disabled = !this.personaOrigenId;
-            buscador.placeholder = this.personaOrigenId ? '🔍 Buscar por código o nombre...' : 'Seleccione persona origen primero';
+        if (this.personaOrigenId) {
+            buscador.disabled = false;
+            btnBuscar.disabled = false;
+            buscador.placeholder = '🔍 Buscar por código o nombre...';
+        } else {
+            buscador.disabled = true;
+            btnBuscar.disabled = true;
+            buscador.placeholder = 'Seleccione persona origen primero';
+        }
         }
     }
     
     cargarBienesDisponibles() {
-        if (!this.personaOrigenId) {
-            this.bienesDisponibles = [];
-            this.renderizarBienesDisponibles();
-            return;
-        }
-        
-        this.bienesDisponibles = this.bienes.filter(b => 
-            b.persona_id === this.personaOrigenId &&
-            !this.bienesSeleccionados.some(bs => bs.id === b.id)
-        );
-        
+    if (!this.personaOrigenId) {
+        this.bienesDisponibles = [];
         this.renderizarBienesDisponibles();
-        this.actualizarResumen();
+        return;
+    }
+    
+    console.log('📋 Cargando bienes para persona:', this.personaOrigenId);
+    
+    // Filtrar bienes por persona origen y no seleccionados
+    this.bienesDisponibles = this.bienes.filter(b => {
+        const personaIdBien = b.persona_id || b.personaId;
+        return personaIdBien == this.personaOrigenId &&
+               !this.bienesSeleccionados.some(bs => bs.id === b.id);
+    });
+    
+    console.log('📦 Bienes disponibles:', this.bienesDisponibles.length);
+    
+    // Limpiar el campo de búsqueda
+    const buscador = document.getElementById('buscadorBienes');
+    if (buscador) buscador.value = '';
+    
+    this.renderizarBienesDisponibles();
+    this.actualizarResumen();
     }
     
     filtrarBienesDisponibles() {
-        const termino = document.getElementById('buscadorBienes')?.value.toLowerCase() || '';
+    const termino = document.getElementById('buscadorBienes')?.value.toLowerCase().trim() || '';
+    
+    console.log('🔍 Filtrando por:', termino);
+    
+    if (!termino) {
+        // Si no hay término de búsqueda, mostrar todos los disponibles
+        this.cargarBienesDisponibles();
+        return;
+    }
+    
+    // Filtrar bienes que coincidan con el término
+    this.bienesDisponibles = this.bienes.filter(b => {
+        // Verificar que el bien pertenece a la persona origen
+        const personaIdBien = b.persona_id || b.personaId;
+        if (personaIdBien != this.personaOrigenId) return false;
         
-        if (!termino) {
-            this.cargarBienesDisponibles();
-            return;
-        }
+        // Verificar que no esté ya seleccionado
+        if (this.bienesSeleccionados.some(bs => bs.id === b.id)) return false;
         
-        this.bienesDisponibles = this.bienes.filter(b => {
-            const codigo = b.cod_patrimonial || b.codigo_patrimonial || '';
-            return b.persona_id === this.personaOrigenId &&
-                   !this.bienesSeleccionados.some(bs => bs.id === b.id) &&
-                   (codigo.toLowerCase().includes(termino) ||
-                    b.nombre.toLowerCase().includes(termino));
-        });
+        // Obtener campos para buscar (soportar diferentes nombres de campos)
+        const codigo = (b.codigo_patrimonial || b.codigo_patrimonial || '').toLowerCase();
+        const nombre = (b.nombre || '').toLowerCase();
+        const descripcion = (b.descripcion || '').toLowerCase();
         
-        this.renderizarBienesDisponibles();
+        // Buscar en código, nombre y descripción
+        return codigo.includes(termino) || 
+               nombre.includes(termino) || 
+               descripcion.includes(termino);
+    });
+    
+    console.log('📦 Resultados encontrados:', this.bienesDisponibles.length);
+    
+    // Mostrar mensaje si no hay resultados
+    if (this.bienesDisponibles.length === 0) {
+        console.log('⚠️ No se encontraron bienes que coincidan con "' + termino + '"');
+    }
+    
+    this.renderizarBienesDisponibles();
     }
     
     renderizarBienesDisponibles() {
-        const tbody = document.getElementById('bienesDisponiblesBody');
-        if (!tbody) return;
+    const tbody = document.getElementById('bienesDisponiblesBody');
+    if (!tbody) return;
+    
+    if (!this.personaOrigenId) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center">Seleccione persona origen</td></tr>`;
+        return;
+    }
+    
+    if (this.bienesDisponibles.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center">No hay bienes disponibles para transferir</td></tr>`;
+        return;
+    }
+    
+    tbody.innerHTML = this.bienesDisponibles.map(bien => {
+        const codigo = bien.codigo_patrimonial || bien.cod_patrimonial || 'N/A';
+        const nombre = bien.nombre || 'N/A';
+        const estado = bien.estado || 'N/A';
         
-        if (!this.personaOrigenId) {
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center">Seleccione persona origen</td></tr>`;
-            return;
-        }
-        
-        if (this.bienesDisponibles.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center">No hay bienes disponibles</td></tr>`;
-            return;
-        }
-        
-        tbody.innerHTML = this.bienesDisponibles.map(bien => `
+        return `
             <tr>
                 <td><input type="checkbox" class="check-bien-disponible" value="${bien.id}"></td>
-                <td><strong>${bien.cod_patrimonial || bien.codigo_patrimonial}</strong></td>
-                <td>${bien.nombre}</td>
-                <td><span class="badge badge-${this.getEstadoClass(bien.estado)}">${bien.estado}</span></td>
+                <td><strong>${codigo}</strong></td>
+                <td>${nombre}</td>
+                <td><span class="badge badge-${this.getEstadoClass(estado)}">${estado}</span></td>
             </tr>
-        `).join('');
-        
-        const selectAll = document.getElementById('selectAllDisponibles');
-        if (selectAll) selectAll.checked = false;
-    }
+        `;
+    }).join('');
+    
+    const selectAll = document.getElementById('selectAllDisponibles');
+    if (selectAll) selectAll.checked = false;
+}
     
     seleccionarTodosDisponibles(checked) {
         document.querySelectorAll('.check-bien-disponible').forEach(cb => {
@@ -170,52 +244,95 @@ class DesplazamientoModule {
     }
     
     agregarBienesSeleccionados() {
-        const checkboxes = document.querySelectorAll('.check-bien-disponible:checked');
-        
-        if (checkboxes.length === 0) {
-            Utils.showToast('Seleccione al menos un bien', 'warning');
-            return;
-        }
-        
-        const bienesIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
-        
-        bienesIds.forEach(id => {
-            const bien = this.bienesDisponibles.find(b => b.id === id);
-            if (bien) {
-                this.bienesSeleccionados.push(bien);
-                this.bienesDisponibles = this.bienesDisponibles.filter(b => b.id !== id);
-            }
-        });
-        
-        this.renderizarBienesDisponibles();
-        this.renderizarBienesSeleccionados();
-        this.actualizarResumen();
-        this.validarFormularioCompleto();
-        
-        Utils.showToast(`✅ ${bienesIds.length} bien(es) agregado(s)`, 'success');
+    const checkboxes = document.querySelectorAll('.check-bien-disponible:checked');
+    
+    console.log('📦 Checkboxes seleccionados:', checkboxes.length);
+    
+    if (checkboxes.length === 0) {
+        Utils.showToast('Seleccione al menos un bien para transferir', 'warning');
+        return;
     }
     
-    renderizarBienesSeleccionados() {
-        const tbody = document.getElementById('bienesSeleccionadosBody');
-        if (!tbody) return;
+    let agregados = 0;
+    
+    checkboxes.forEach(cb => {
+        // ✅ CORREGIDO: Convertir a número y comparar correctamente
+        const bienId = parseInt(cb.value);
         
-        if (this.bienesSeleccionados.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center">No hay bienes seleccionados</td></tr>`;
-            return;
+        console.log('🔍 Buscando bien con ID:', bienId, 'Tipo:', typeof bienId);
+        
+        // Mostrar IDs disponibles para depuración
+        console.log('IDs disponibles:', this.bienesDisponibles.map(b => ({ id: b.id, tipo: typeof b.id })));
+        
+        // Buscar el bien (comparando como número)
+        const bien = this.bienesDisponibles.find(b => parseInt(b.id) === bienId);
+        
+        if (bien) {
+            console.log('✅ Agregando bien:', bien.codigo_patrimonial || bien.cod_patrimonial, bien.nombre);
+            
+            this.bienesSeleccionados.push(bien);
+            agregados++;
+        } else {
+            console.warn('⚠️ No se encontró el bien con ID:', bienId);
+            console.log('Bienes disponibles:', this.bienesDisponibles);
         }
+    });
+    
+    // Filtrar los bienes agregados de la lista de disponibles
+    if (agregados > 0) {
+        const idsAgregados = this.bienesSeleccionados.map(b => b.id);
+        this.bienesDisponibles = this.bienesDisponibles.filter(b => !idsAgregados.includes(b.id));
+    }
+    
+    console.log('📊 Total agregados:', agregados);
+    console.log('📦 Seleccionados actuales:', this.bienesSeleccionados.length);
+    
+    // Renderizar ambas listas
+    this.renderizarBienesDisponibles();
+    this.renderizarBienesSeleccionados();
+    this.actualizarResumen();
+    this.validarFormularioCompleto();
+    
+    if (agregados > 0) {
+        Utils.showToast(`✅ ${agregados} bien(es) agregado(s) para transferencia`, 'success');
         
-        tbody.innerHTML = this.bienesSeleccionados.map(bien => `
+        const selectAll = document.getElementById('selectAllDisponibles');
+        if (selectAll) selectAll.checked = false;
+    }
+}
+    
+    renderizarBienesSeleccionados() {
+    const tbody = document.getElementById('bienesSeleccionadosBody');
+    if (!tbody) {
+        console.error('❌ No se encontró el tbody de bienes seleccionados');
+        return;
+    }
+    
+    console.log('🎨 Renderizando bienes seleccionados:', this.bienesSeleccionados.length);
+    
+    if (this.bienesSeleccionados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center">No hay bienes seleccionados</td></tr>`;
+        return;
+    }
+    
+    tbody.innerHTML = this.bienesSeleccionados.map(bien => {
+        const codigo = bien.codigo_patrimonial || bien.cod_patrimonial || 'N/A';
+        const nombre = bien.nombre || 'N/A';
+        const estado = bien.estado || 'N/A';
+        
+        return `
             <tr>
-                <td><strong>${bien.cod_patrimonial || bien.codigo_patrimonial}</strong></td>
-                <td>${bien.nombre}</td>
-                <td><span class="badge badge-${this.getEstadoClass(bien.estado)}">${bien.estado}</span></td>
+                <td><strong>${codigo}</strong></td>
+                <td>${nombre}</td>
+                <td><span class="badge badge-${this.getEstadoClass(estado)}">${estado}</span></td>
                 <td>
                     <button class="btn-icon" onclick="desplazamientoModule.removerBienSeleccionado(${bien.id})" title="Quitar">
                         ❌
                     </button>
                 </td>
             </tr>
-        `).join('');
+        `;
+    }).join('');
     }
     
     removerBienSeleccionado(bienId) {
