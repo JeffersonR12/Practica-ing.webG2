@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Abrir Sistema Patrimonio",
+            "url": "http://localhost/Practica-ing.webG2/Presentacion/pages/bienes.html",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}
