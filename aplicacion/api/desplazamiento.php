@@ -1,14 +1,69 @@
 <?php
+/**
+ * =====================================================
+ * DESPLAZAMIENTO.PHP - CORREGIDO
+ * =====================================================
+ */
+
 header("Content-Type: application/json");
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+
+// Para solicitudes OPTIONS (CORS)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 include '../../infraestructura/BD/conexion.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = json_decode(file_get_contents("php://input"), true);
+$method = $_SERVER['REQUEST_METHOD'];
 
+// =============================================
+// GET - Listar desplazamientos
+// =============================================
+if ($method === 'GET') {
+    $sql = "SELECT 
+                d.id,
+                d.numero,
+                d.fecha,
+                d.motivo,
+                d.observacion,
+                d.persona_origen_id,
+                d.persona_destino_id,
+                po.nombre as persona_origen,
+                pd.nombre as persona_destino,
+                COUNT(dd.id) as cantidad_bienes
+            FROM desplazamiento d
+            LEFT JOIN persona po ON d.persona_origen_id = po.id
+            LEFT JOIN persona pd ON d.persona_destino_id = pd.id
+            LEFT JOIN detalle_desplazamiento dd ON d.id = dd.desplazamiento_id
+            GROUP BY d.id
+            ORDER BY d.fecha DESC";
+    
+    $res = $conn->query($sql);
+    
+    if ($res) {
+        $data = [];
+        while ($row = $res->fetch_assoc()) {
+            $data[] = $row;
+        }
+        echo json_encode($data);
+    } else {
+        echo json_encode([
+            'error' => 'Error en la consulta: ' . $conn->error
+        ]);
+    }
+    exit;
+}
+
+// =============================================
+// POST - Crear desplazamiento
+// =============================================
+if ($method === 'POST') {
+    $input = json_decode(file_get_contents("php://input"), true);
+    
     $motivo = $conn->real_escape_string($input['motivo'] ?? '');
     $persona_origen = intval($input['persona_origen'] ?? 0);
     $persona_destino = intval($input['persona_destino'] ?? 0);
@@ -79,7 +134,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "message" => "Error: " . $conn->error
         ]);
     }
+    exit;
 }
 
+// Si no es GET ni POST
+echo json_encode(['error' => 'Método no permitido']);
 $conn->close();
 ?>
