@@ -263,6 +263,68 @@ if ($method === 'POST' && $action !== 'importar') {
         ]);
     }
     exit;
+
+    // =============================================
+// ASIGNAR BIEN INICIAL (sin desplazamiento)
+// =============================================
+if ($method === 'POST' && isset($_GET['action']) && $_GET['action'] === 'asignar') {
+    $input = json_decode(file_get_contents("php://input"), true);
+    
+    $bien_id = intval($input['bien_id'] ?? 0);
+    $persona_id = intval($input['persona_id'] ?? 0);
+    $observacion = $conn->real_escape_string($input['observacion'] ?? 'Asignación inicial');
+    
+    // Validaciones
+    if (!$bien_id || !$persona_id) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Faltan datos requeridos'
+        ]);
+        exit;
+    }
+    
+    // Verificar que el bien existe y no está asignado
+    $check = $conn->query("SELECT persona_id FROM bien WHERE id = $bien_id");
+    $bien = $check->fetch_assoc();
+    
+    if (!$bien) {
+        echo json_encode(['success' => false, 'message' => 'Bien no encontrado']);
+        exit;
+    }
+    
+    if ($bien['persona_id'] !== null) {
+        echo json_encode(['success' => false, 'message' => 'El bien ya está asignado. Use la función de desplazamiento.']);
+        exit;
+    }
+    
+    // Verificar que la persona existe
+    $checkPersona = $conn->query("SELECT id FROM persona WHERE id = $persona_id AND estado = 'Activo'");
+    if ($checkPersona->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Persona no encontrada o inactiva']);
+        exit;
+    }
+    
+    // Actualizar bien
+    $sql = "UPDATE bien SET persona_id = $persona_id WHERE id = $bien_id";
+    
+    if ($conn->query($sql)) {
+        // Registrar en historial
+        $conn->query("INSERT INTO historial_bien 
+            (bien_id, persona_id_anterior, persona_id_nueva, accion, fecha, observacion)
+            VALUES ($bien_id, NULL, $persona_id, 'ASIGNACION_INICIAL', NOW(), '$observacion')");
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Bien asignado correctamente'
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Error: ' . $conn->error
+        ]);
+    }
+    exit;
+}
 }
 
 $conn->close();
