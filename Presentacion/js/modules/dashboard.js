@@ -32,6 +32,8 @@ class DashboardModule {
         try {
             const stats = await API.getDashboardStats();
             
+            this.bienesSinAsignar = stats.bienes_sin_asignar || [];
+            console.log('📦 Bienes sin asignar cargados:', this.bienesSinAsignar.length);
             this.actualizarCards(stats);
             this.renderizarGraficoEstados(stats.bienes_por_estado || {});
             this.renderizarGraficoAreas(stats.bienes_por_area || []);
@@ -58,7 +60,11 @@ class DashboardModule {
         if (totalPersonas) totalPersonas.textContent = stats.total_personas || 0;
         if (desplazamientosHoy) desplazamientosHoy.textContent = stats.desplazamientos_hoy || 0;
     }
-    
+    asignarBien(bienId) {
+    // Redirigir a la página de desplazamiento
+    // Pasar el ID del bien para preseleccionarlo
+    window.location.href = `pages/desplazamiento.html?bien_id=${bienId}`;
+    }
     mostrarValoresDefault() {
         ['total-bienes', 'total-personas', 'desplazamientos-hoy', 'desplazamientos-mes'].forEach(id => {
             const el = document.getElementById(id);
@@ -147,30 +153,173 @@ class DashboardModule {
         `).join('');
     }
     
-    renderizarBienesSinAsignar(bienes) {
-        const container = document.getElementById('bienes-sin-asignar');
-        if (!container) return;
-        
-        if (bienes.length === 0) {
-            container.innerHTML = '<p class="text-success">✅ Todos los bienes están asignados</p>';
-            return;
-        }
-        
-        container.innerHTML = `
-            <ul class="alert-items">
-                ${bienes.map(b => `
-                    <li class="alert-item">
-                        <span class="alert-icon">⚠️</span>
-                        <span class="alert-content">
-                            <strong>${b.codigo_patrimonial}</strong> - ${b.nombre}
-                            <small>(${b.estado})</small>
-                        </span>
-                        <a href="bienes.html" class="btn-link">Asignar →</a>
-                    </li>
-                `).join('')}
-            </ul>
-        `;
+  renderizarBienesSinAsignar(bienes) {
+    const container = document.getElementById('bienes-sin-asignar');
+    if (!container) return;
+    
+    // Guardar los bienes sin asignar para usarlos después
+    this.bienesSinAsignar = bienes || [];
+    
+    console.log('🎨 Renderizando bienes sin asignar:', this.bienesSinAsignar.length);
+    
+    if (!bienes || bienes.length === 0) {
+        container.innerHTML = '<p class="text-success">✅ Todos los bienes están asignados</p>';
+        return;
     }
+    
+    container.innerHTML = `
+        <ul class="alert-items">
+            ${bienes.map(b => `
+                <li class="alert-item">
+                    <span class="alert-icon">⚠️</span>
+                    <span class="alert-content">
+                        <strong>${b.codigo_patrimonial || b.cod_patrimonial}</strong> - ${b.nombre}
+                        <small>(${b.estado})</small>
+                    </span>
+                    <button class="btn-link" onclick="dashboardModule.abrirModalAsignacionInicial(${b.id})" style="background: none; border: none; cursor: pointer; color: #2563eb;">
+                        Asignar →
+                    </button>
+                </li>
+            `).join('')}
+        </ul>
+    `;
+}
+
+/**
+ * Abre modal para asignación inicial de un bien sin dueño
+ */
+async abrirModalAsignacionInicial(bienId) {
+    console.log('🔍 Abriendo modal para bien ID:', bienId);
+    console.log('📦 Bienes disponibles:', this.bienesSinAsignar);
+    
+    // ✅ Convertir ID a número para comparación
+    const id = parseInt(bienId);
+    
+    // Buscar el bien (soportar diferentes nombres de campo ID)
+    const bien = this.bienesSinAsignar.find(b => {
+        const bienIdNum = parseInt(b.id || b.ID || b.Id);
+        console.log(`  Comparando: ${bienIdNum} === ${id}?`, bienIdNum === id);
+        return bienIdNum === id;
+    });
+    
+    if (!bien) {
+        Utils.showToast('Bien no encontrado', 'error');
+        return;
+    }
+    
+    try {
+        // Cargar personas activas
+        const personas = await API.getPersonas();
+        const personasActivas = personas.filter(p => p.estado === 'Activo');
+        
+        // Crear modal
+        const modalHtml = `
+            <div class="modal" id="modalAsignacionInicial" style="display: block;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>📦 Asignar Bien (Primera Asignación)</h2>
+                        <span class="close" onclick="dashboardModule.cerrarModalAsignacion()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="bien-info-card" style="background: #f1f5f9; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <p><strong>🏷️ Código:</strong> ${bien.codigo_patrimonial || bien.cod_patrimonial}</p>
+                            <p><strong>📦 Nombre:</strong> ${bien.nombre}</p>
+                            <p><strong>📝 Descripción:</strong> ${bien.descripcion || 'N/A'}</p>
+                            <p><strong>📊 Estado:</strong> <span class="badge badge-${this.getEstadoClass(bien.estado)}">${bien.estado}</span></p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="personaAsignar">👤 Asignar a:</label>
+                            <select id="personaAsignar" class="form-control" required>
+                                <option value="">-- Seleccionar persona responsable --</option>
+                                ${personasActivas.map(p => `
+                                    <option value="${p.id}">${p.nombre} ${p.area ? '(' + p.area + ')' : ''}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="observacionAsignacion">📋 Observación (opcional):</label>
+                            <textarea id="observacionAsignacion" class="form-control" rows="2" placeholder="Ej: Entrega de equipo nuevo"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-success" onclick="dashboardModule.confirmarAsignacionInicial(${bienId})">
+                            ✅ Confirmar Asignación
+                        </button>
+                        <button class="btn btn-secondary" onclick="dashboardModule.cerrarModalAsignacion()">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+    } catch (error) {
+        console.error('Error al abrir modal:', error);
+        Utils.showToast('Error al cargar personas', 'error');
+    }
+}
+
+/**
+ * Confirma la asignación inicial del bien
+ */
+async confirmarAsignacionInicial(bienId) {
+    const personaId = document.getElementById('personaAsignar')?.value;
+    const observacion = document.getElementById('observacionAsignacion')?.value || 'Asignación inicial desde Dashboard';
+    
+    if (!personaId) {
+        Utils.showToast('Seleccione una persona para asignar el bien', 'warning');
+        return;
+    }
+    
+    try {
+        // Mostrar loading
+        Utils.showToast('Asignando bien...', 'info');
+        
+        // ✅ Llamar al endpoint de asignación directa (sin desplazamiento)
+        const response = await API.asignarBienInicial(bienId, parseInt(personaId), observacion);
+        
+        if (response.success) {
+            Utils.showToast('✅ Bien asignado correctamente', 'success');
+            this.cerrarModalAsignacion();
+            
+            // Recargar datos del dashboard
+            setTimeout(async () => {
+                await this.cargarDatosDashboard();
+            }, 500);
+        } else {
+            Utils.showToast('❌ Error: ' + (response.message || 'No se pudo asignar'), 'error');
+        }
+    } catch (error) {
+        console.error('Error al asignar:', error);
+        Utils.showToast('❌ Error al asignar el bien', 'error');
+    }
+}
+
+/**
+ * Cierra el modal de asignación
+ */
+cerrarModalAsignacion() {
+    const modal = document.getElementById('modalAsignacionInicial');
+    if (modal) modal.remove();
+}
+
+/**
+ * Obtiene clase CSS según estado
+ */
+getEstadoClass(estado) {
+    const classes = {
+        'Operativo': 'success',
+        'Bueno': 'success',
+        'Regular': 'warning',
+        'Malo': 'danger',
+        'Inoperativo': 'danger'
+    };
+    return classes[estado] || 'secondary';
+}
 }
 
 let dashboardModule;

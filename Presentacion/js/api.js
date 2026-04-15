@@ -195,6 +195,32 @@ class APIClient {
             headers: { 'Content-Type': 'application/json' }
         });
     }
+
+
+    /**
+ * Asigna un bien sin dueño a una persona (primera asignación)
+ */
+async asignarBienInicial(bienId, personaId, observacion = '') {
+    const url = this.baseURL + 'bienes.php?action=asignar';
+    
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            bien_id: bienId,
+            persona_id: personaId,
+            observacion: observacion
+        })
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+        throw new Error(data.message || 'Error al asignar');
+    }
+    
+    return data;
+}
 }
 
 // Instancia global
