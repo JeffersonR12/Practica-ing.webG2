@@ -4,8 +4,29 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Abrir Sistema Patrimonio",
+            "name": "🌐 Iniciar Sistema Patrimonial",
+            "url": "http://localhost/Practica-ing.webG2/Presentacion/index.html",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "📦 Bienes (Directo)",
             "url": "http://localhost/Practica-ing.webG2/Presentacion/pages/bienes.html",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "🔐 Login",
+            "url": "http://localhost/Practica-ing.webG2/Presentacion/login.html",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "📊 Dashboard",
+            "url": "http://localhost/Practica-ing.webG2/Presentacion/dashboard.html",
             "webRoot": "${workspaceFolder}"
         }
     ]

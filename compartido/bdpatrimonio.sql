@@ -1,672 +1,177 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Servidor: 127.0.0.1
--- Tiempo de generación: 14-04-2026 a las 04:42:59
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- =====================================================
+-- CREAR BASE DE DATOS PATRIMONIO (COMPLETO - CORREGIDO)
+-- =====================================================
+-- Ejecutar este script para crear la base de datos desde cero
+-- =====================================================
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+-- -----------------------------------------------------
+-- 0. CREAR BASE DE DATOS
+-- -----------------------------------------------------
+DROP DATABASE IF EXISTS `patrimonio`;
+CREATE DATABASE `patrimonio` 
+DEFAULT CHARACTER SET utf8mb4 
+COLLATE utf8mb4_general_ci;
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Base de datos: `patrimonio`
---
-CREATE DATABASE IF NOT EXISTS `patrimonio` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `patrimonio`;
 
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `bien`
---
-
-CREATE TABLE `bien` (
-  `id` int(11) NOT NULL,
-  `codigo_patrimonial` varchar(50) DEFAULT NULL,
-  `nombre` varchar(100) DEFAULT NULL,
-  `descripcion` text DEFAULT NULL,
-  `estado` varchar(50) DEFAULT NULL,
-  `persona_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `desplazamiento`
---
-
-CREATE TABLE `desplazamiento` (
-  `id` int(11) NOT NULL,
-  `numero` varchar(20) DEFAULT NULL,
-  `motivo` varchar(100) DEFAULT NULL,
-  `fecha` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `detalle_desplazamiento`
---
-
-CREATE TABLE `detalle_desplazamiento` (
-  `id` int(11) NOT NULL,
-  `desplazamiento_id` int(11) DEFAULT NULL,
-  `bien_id` int(11) DEFAULT NULL,
-  `persona_origen` int(11) DEFAULT NULL,
-  `persona_destino` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `historial_bien`
---
-
-CREATE TABLE `historial_bien` (
-  `id` int(11) NOT NULL,
-  `bien_id` int(11) DEFAULT NULL,
-  `persona_id` int(11) DEFAULT NULL,
-  `fecha` date DEFAULT NULL,
-  `accion` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `persona`
---
-
+-- -----------------------------------------------------
+-- 1. TABLA: persona
+-- -----------------------------------------------------
 CREATE TABLE `persona` (
-  `id` int(11) NOT NULL,
-  `nombre` varchar(100) DEFAULT NULL
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `nombre` VARCHAR(100) NOT NULL,
+    `area` VARCHAR(50) DEFAULT NULL,
+    `cargo` VARCHAR(50) DEFAULT NULL,
+    `email` VARCHAR(100) DEFAULT NULL,
+    `telefono` VARCHAR(20) DEFAULT NULL,
+    `estado` ENUM('Activo','Inactivo') DEFAULT 'Activo',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Índices para tablas volcadas
---
-
---
--- Indices de la tabla `bien`
---
-ALTER TABLE `bien`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `codigo_patrimonial` (`codigo_patrimonial`),
-  ADD KEY `persona_id` (`persona_id`);
-
---
--- Indices de la tabla `desplazamiento`
---
-ALTER TABLE `desplazamiento`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indices de la tabla `detalle_desplazamiento`
---
-ALTER TABLE `detalle_desplazamiento`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indices de la tabla `historial_bien`
---
-ALTER TABLE `historial_bien`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indices de la tabla `persona`
---
-ALTER TABLE `persona`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT de las tablas volcadas
---
-
---
--- AUTO_INCREMENT de la tabla `bien`
---
-ALTER TABLE `bien`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `desplazamiento`
---
-ALTER TABLE `desplazamiento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `detalle_desplazamiento`
---
-ALTER TABLE `detalle_desplazamiento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `historial_bien`
---
-ALTER TABLE `historial_bien`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `persona`
---
-ALTER TABLE `persona`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- Restricciones para tablas volcadas
---
-
---
--- Filtros para la tabla `bien`
---
-ALTER TABLE `bien`
-  ADD CONSTRAINT `bien_ibfk_1` FOREIGN KEY (`persona_id`) REFERENCES `persona` (`id`);
---
--- Base de datos: `phpmyadmin`
---
-CREATE DATABASE IF NOT EXISTS `phpmyadmin` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
-USE `phpmyadmin`;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__bookmark`
---
-
-CREATE TABLE `pma__bookmark` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `dbase` varchar(255) NOT NULL DEFAULT '',
-  `user` varchar(255) NOT NULL DEFAULT '',
-  `label` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-  `query` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Bookmarks';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__central_columns`
---
-
-CREATE TABLE `pma__central_columns` (
-  `db_name` varchar(64) NOT NULL,
-  `col_name` varchar(64) NOT NULL,
-  `col_type` varchar(64) NOT NULL,
-  `col_length` text DEFAULT NULL,
-  `col_collation` varchar(64) NOT NULL,
-  `col_isNull` tinyint(1) NOT NULL,
-  `col_extra` varchar(255) DEFAULT '',
-  `col_default` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Central list of columns';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__column_info`
---
-
-CREATE TABLE `pma__column_info` (
-  `id` int(5) UNSIGNED NOT NULL,
-  `db_name` varchar(64) NOT NULL DEFAULT '',
-  `table_name` varchar(64) NOT NULL DEFAULT '',
-  `column_name` varchar(64) NOT NULL DEFAULT '',
-  `comment` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-  `mimetype` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
-  `transformation` varchar(255) NOT NULL DEFAULT '',
-  `transformation_options` varchar(255) NOT NULL DEFAULT '',
-  `input_transformation` varchar(255) NOT NULL DEFAULT '',
-  `input_transformation_options` varchar(255) NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Column information for phpMyAdmin';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__designer_settings`
---
-
-CREATE TABLE `pma__designer_settings` (
-  `username` varchar(64) NOT NULL,
-  `settings_data` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Settings related to Designer';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__export_templates`
---
-
-CREATE TABLE `pma__export_templates` (
-  `id` int(5) UNSIGNED NOT NULL,
-  `username` varchar(64) NOT NULL,
-  `export_type` varchar(10) NOT NULL,
-  `template_name` varchar(64) NOT NULL,
-  `template_data` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Saved export templates';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__favorite`
---
-
-CREATE TABLE `pma__favorite` (
-  `username` varchar(64) NOT NULL,
-  `tables` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Favorite tables';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__history`
---
-
-CREATE TABLE `pma__history` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `username` varchar(64) NOT NULL DEFAULT '',
-  `db` varchar(64) NOT NULL DEFAULT '',
-  `table` varchar(64) NOT NULL DEFAULT '',
-  `timevalue` timestamp NOT NULL DEFAULT current_timestamp(),
-  `sqlquery` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='SQL history for phpMyAdmin';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__navigationhiding`
---
-
-CREATE TABLE `pma__navigationhiding` (
-  `username` varchar(64) NOT NULL,
-  `item_name` varchar(64) NOT NULL,
-  `item_type` varchar(64) NOT NULL,
-  `db_name` varchar(64) NOT NULL,
-  `table_name` varchar(64) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Hidden items of navigation tree';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__pdf_pages`
---
-
-CREATE TABLE `pma__pdf_pages` (
-  `db_name` varchar(64) NOT NULL DEFAULT '',
-  `page_nr` int(10) UNSIGNED NOT NULL,
-  `page_descr` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='PDF relation pages for phpMyAdmin';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__recent`
---
-
-CREATE TABLE `pma__recent` (
-  `username` varchar(64) NOT NULL,
-  `tables` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Recently accessed tables';
-
---
--- Volcado de datos para la tabla `pma__recent`
---
-
-INSERT INTO `pma__recent` (`username`, `tables`) VALUES
-('root', '[{\"db\":\"ventas_db\",\"table\":\"ventas\"}]');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__relation`
---
-
-CREATE TABLE `pma__relation` (
-  `master_db` varchar(64) NOT NULL DEFAULT '',
-  `master_table` varchar(64) NOT NULL DEFAULT '',
-  `master_field` varchar(64) NOT NULL DEFAULT '',
-  `foreign_db` varchar(64) NOT NULL DEFAULT '',
-  `foreign_table` varchar(64) NOT NULL DEFAULT '',
-  `foreign_field` varchar(64) NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Relation table';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__savedsearches`
---
-
-CREATE TABLE `pma__savedsearches` (
-  `id` int(5) UNSIGNED NOT NULL,
-  `username` varchar(64) NOT NULL DEFAULT '',
-  `db_name` varchar(64) NOT NULL DEFAULT '',
-  `search_name` varchar(64) NOT NULL DEFAULT '',
-  `search_data` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Saved searches';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__table_coords`
---
-
-CREATE TABLE `pma__table_coords` (
-  `db_name` varchar(64) NOT NULL DEFAULT '',
-  `table_name` varchar(64) NOT NULL DEFAULT '',
-  `pdf_page_number` int(11) NOT NULL DEFAULT 0,
-  `x` float UNSIGNED NOT NULL DEFAULT 0,
-  `y` float UNSIGNED NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Table coordinates for phpMyAdmin PDF output';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__table_info`
---
-
-CREATE TABLE `pma__table_info` (
-  `db_name` varchar(64) NOT NULL DEFAULT '',
-  `table_name` varchar(64) NOT NULL DEFAULT '',
-  `display_field` varchar(64) NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Table information for phpMyAdmin';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__table_uiprefs`
---
-
-CREATE TABLE `pma__table_uiprefs` (
-  `username` varchar(64) NOT NULL,
-  `db_name` varchar(64) NOT NULL,
-  `table_name` varchar(64) NOT NULL,
-  `prefs` text NOT NULL,
-  `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Tables'' UI preferences';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__tracking`
---
-
-CREATE TABLE `pma__tracking` (
-  `db_name` varchar(64) NOT NULL,
-  `table_name` varchar(64) NOT NULL,
-  `version` int(10) UNSIGNED NOT NULL,
-  `date_created` datetime NOT NULL,
-  `date_updated` datetime NOT NULL,
-  `schema_snapshot` text NOT NULL,
-  `schema_sql` text DEFAULT NULL,
-  `data_sql` longtext DEFAULT NULL,
-  `tracking` set('UPDATE','REPLACE','INSERT','DELETE','TRUNCATE','CREATE DATABASE','ALTER DATABASE','DROP DATABASE','CREATE TABLE','ALTER TABLE','RENAME TABLE','DROP TABLE','CREATE INDEX','DROP INDEX','CREATE VIEW','ALTER VIEW','DROP VIEW') DEFAULT NULL,
-  `tracking_active` int(1) UNSIGNED NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Database changes tracking for phpMyAdmin';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__userconfig`
---
-
-CREATE TABLE `pma__userconfig` (
-  `username` varchar(64) NOT NULL,
-  `timevalue` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `config_data` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='User preferences storage for phpMyAdmin';
-
---
--- Volcado de datos para la tabla `pma__userconfig`
---
-
-INSERT INTO `pma__userconfig` (`username`, `timevalue`, `config_data`) VALUES
-('root', '2026-04-14 00:35:46', '{\"Console\\/Mode\":\"collapse\",\"lang\":\"es\"}');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__usergroups`
---
-
-CREATE TABLE `pma__usergroups` (
-  `usergroup` varchar(64) NOT NULL,
-  `tab` varchar(64) NOT NULL,
-  `allowed` enum('Y','N') NOT NULL DEFAULT 'N'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='User groups with configured menu items';
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `pma__users`
---
-
-CREATE TABLE `pma__users` (
-  `username` varchar(64) NOT NULL,
-  `usergroup` varchar(64) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Users and their assignments to user groups';
-
---
--- Índices para tablas volcadas
---
-
---
--- Indices de la tabla `pma__bookmark`
---
-ALTER TABLE `pma__bookmark`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indices de la tabla `pma__central_columns`
---
-ALTER TABLE `pma__central_columns`
-  ADD PRIMARY KEY (`db_name`,`col_name`);
-
---
--- Indices de la tabla `pma__column_info`
---
-ALTER TABLE `pma__column_info`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `db_name` (`db_name`,`table_name`,`column_name`);
-
---
--- Indices de la tabla `pma__designer_settings`
---
-ALTER TABLE `pma__designer_settings`
-  ADD PRIMARY KEY (`username`);
-
---
--- Indices de la tabla `pma__export_templates`
---
-ALTER TABLE `pma__export_templates`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `u_user_type_template` (`username`,`export_type`,`template_name`);
-
---
--- Indices de la tabla `pma__favorite`
---
-ALTER TABLE `pma__favorite`
-  ADD PRIMARY KEY (`username`);
-
---
--- Indices de la tabla `pma__history`
---
-ALTER TABLE `pma__history`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `username` (`username`,`db`,`table`,`timevalue`);
-
---
--- Indices de la tabla `pma__navigationhiding`
---
-ALTER TABLE `pma__navigationhiding`
-  ADD PRIMARY KEY (`username`,`item_name`,`item_type`,`db_name`,`table_name`);
-
---
--- Indices de la tabla `pma__pdf_pages`
---
-ALTER TABLE `pma__pdf_pages`
-  ADD PRIMARY KEY (`page_nr`),
-  ADD KEY `db_name` (`db_name`);
-
---
--- Indices de la tabla `pma__recent`
---
-ALTER TABLE `pma__recent`
-  ADD PRIMARY KEY (`username`);
-
---
--- Indices de la tabla `pma__relation`
---
-ALTER TABLE `pma__relation`
-  ADD PRIMARY KEY (`master_db`,`master_table`,`master_field`),
-  ADD KEY `foreign_field` (`foreign_db`,`foreign_table`);
-
---
--- Indices de la tabla `pma__savedsearches`
---
-ALTER TABLE `pma__savedsearches`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `u_savedsearches_username_dbname` (`username`,`db_name`,`search_name`);
-
---
--- Indices de la tabla `pma__table_coords`
---
-ALTER TABLE `pma__table_coords`
-  ADD PRIMARY KEY (`db_name`,`table_name`,`pdf_page_number`);
-
---
--- Indices de la tabla `pma__table_info`
---
-ALTER TABLE `pma__table_info`
-  ADD PRIMARY KEY (`db_name`,`table_name`);
-
---
--- Indices de la tabla `pma__table_uiprefs`
---
-ALTER TABLE `pma__table_uiprefs`
-  ADD PRIMARY KEY (`username`,`db_name`,`table_name`);
-
---
--- Indices de la tabla `pma__tracking`
---
-ALTER TABLE `pma__tracking`
-  ADD PRIMARY KEY (`db_name`,`table_name`,`version`);
-
---
--- Indices de la tabla `pma__userconfig`
---
-ALTER TABLE `pma__userconfig`
-  ADD PRIMARY KEY (`username`);
-
---
--- Indices de la tabla `pma__usergroups`
---
-ALTER TABLE `pma__usergroups`
-  ADD PRIMARY KEY (`usergroup`,`tab`,`allowed`);
-
---
--- Indices de la tabla `pma__users`
---
-ALTER TABLE `pma__users`
-  ADD PRIMARY KEY (`username`,`usergroup`);
-
---
--- AUTO_INCREMENT de las tablas volcadas
---
-
---
--- AUTO_INCREMENT de la tabla `pma__bookmark`
---
-ALTER TABLE `pma__bookmark`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `pma__column_info`
---
-ALTER TABLE `pma__column_info`
-  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `pma__export_templates`
---
-ALTER TABLE `pma__export_templates`
-  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `pma__history`
---
-ALTER TABLE `pma__history`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `pma__pdf_pages`
---
-ALTER TABLE `pma__pdf_pages`
-  MODIFY `page_nr` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `pma__savedsearches`
---
-ALTER TABLE `pma__savedsearches`
-  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT;
---
--- Base de datos: `test`
---
-CREATE DATABASE IF NOT EXISTS `test` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `test`;
---
--- Base de datos: `ventas_db`
---
-CREATE DATABASE IF NOT EXISTS `ventas_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `ventas_db`;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `ventas`
---
-
-CREATE TABLE `ventas` (
-  `id` int(11) NOT NULL,
-  `cliente` varchar(100) DEFAULT NULL,
-  `producto` varchar(100) DEFAULT NULL,
-  `cantidad` int(11) DEFAULT NULL,
-  `precio` decimal(10,2) DEFAULT NULL,
-  `total` decimal(10,2) DEFAULT NULL
+-- -----------------------------------------------------
+-- 2. TABLA: usuario (Autenticación)
+-- -----------------------------------------------------
+CREATE TABLE `usuario` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `usuario` VARCHAR(50) NOT NULL,
+    `password` VARCHAR(255) NOT NULL,
+    `nombre` VARCHAR(100) NOT NULL,
+    `email` VARCHAR(100) NOT NULL,
+    `rol` ENUM('admin','inventario','usuario') DEFAULT 'usuario',
+    `area` VARCHAR(50) DEFAULT NULL,
+    `permisos` JSON DEFAULT NULL,
+    `estado` ENUM('Activo','Inactivo') DEFAULT 'Activo',
+    `ultimo_acceso` DATETIME DEFAULT NULL,
+    `token_recuperacion` VARCHAR(100) DEFAULT NULL,
+    `token_expiracion` DATETIME DEFAULT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_usuario` (`usuario`),
+    UNIQUE KEY `uk_email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `ventas`
---
+-- -----------------------------------------------------
+-- 3. TABLA: bien
+-- -----------------------------------------------------
+CREATE TABLE `bien` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `codigo_patrimonial` VARCHAR(50) NOT NULL,
+    `nombre` VARCHAR(100) NOT NULL,
+    `descripcion` TEXT DEFAULT NULL,
+    `estado` VARCHAR(50) DEFAULT 'Operativo',
+    `persona_id` INT(11) DEFAULT NULL,
+    `fecha_registro` DATE DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `codigo_patrimonial` (`codigo_patrimonial`),
+    KEY `persona_id` (`persona_id`),
+    CONSTRAINT `bien_ibfk_1` FOREIGN KEY (`persona_id`) REFERENCES `persona` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `ventas` (`id`, `cliente`, `producto`, `cantidad`, `precio`, `total`) VALUES
-(2, 'Jhon Robert', 'Pollo', 2, 20.00, 40.00);
+-- -----------------------------------------------------
+-- 4. TABLA: desplazamiento
+-- -----------------------------------------------------
+CREATE TABLE `desplazamiento` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `numero` VARCHAR(30) NOT NULL,
+    `persona_origen_id` INT(11) NOT NULL,
+    `persona_destino_id` INT(11) NOT NULL,
+    `motivo` VARCHAR(100) NOT NULL,
+    `observacion` TEXT DEFAULT NULL,
+    `fecha` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `usuario_id` INT(11) DEFAULT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `numero` (`numero`),
+    KEY `persona_origen_id` (`persona_origen_id`),
+    KEY `persona_destino_id` (`persona_destino_id`),
+    KEY `usuario_id` (`usuario_id`),
+    CONSTRAINT `fk_desp_persona_origen` FOREIGN KEY (`persona_origen_id`) REFERENCES `persona` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_desp_persona_destino` FOREIGN KEY (`persona_destino_id`) REFERENCES `persona` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_desp_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Índices para tablas volcadas
---
+-- -----------------------------------------------------
+-- 5. TABLA: detalle_desplazamiento
+-- -----------------------------------------------------
+CREATE TABLE `detalle_desplazamiento` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `desplazamiento_id` INT(11) NOT NULL,
+    `bien_id` INT(11) NOT NULL,
+    `persona_origen` INT(11) DEFAULT NULL,
+    `persona_destino` INT(11) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `desplazamiento_id` (`desplazamiento_id`),
+    KEY `bien_id` (`bien_id`),
+    CONSTRAINT `fk_detalle_desp` FOREIGN KEY (`desplazamiento_id`) REFERENCES `desplazamiento` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_detalle_bien` FOREIGN KEY (`bien_id`) REFERENCES `bien` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indices de la tabla `ventas`
---
-ALTER TABLE `ventas`
-  ADD PRIMARY KEY (`id`);
+-- -----------------------------------------------------
+-- 6. TABLA: historial_bien
+-- -----------------------------------------------------
+CREATE TABLE `historial_bien` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `bien_id` INT(11) NOT NULL,
+    `persona_id_anterior` INT(11) DEFAULT NULL,
+    `persona_id_nueva` INT(11) DEFAULT NULL,
+    `desplazamiento_id` INT(11) DEFAULT NULL,
+    `accion` VARCHAR(50) NOT NULL,
+    `fecha` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `observacion` TEXT DEFAULT NULL,
+    `usuario_id` INT(11) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `bien_id` (`bien_id`),
+    KEY `persona_id_anterior` (`persona_id_anterior`),
+    KEY `persona_id_nueva` (`persona_id_nueva`),
+    KEY `desplazamiento_id` (`desplazamiento_id`),
+    KEY `usuario_id` (`usuario_id`),
+    CONSTRAINT `fk_hist_bien` FOREIGN KEY (`bien_id`) REFERENCES `bien` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_hist_persona_ant` FOREIGN KEY (`persona_id_anterior`) REFERENCES `persona` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `fk_hist_persona_nueva` FOREIGN KEY (`persona_id_nueva`) REFERENCES `persona` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `fk_hist_desplazamiento` FOREIGN KEY (`desplazamiento_id`) REFERENCES `desplazamiento` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `fk_hist_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- AUTO_INCREMENT de las tablas volcadas
---
+-- -----------------------------------------------------
+-- 7. INSERTAR DATOS DE PRUEBA
+-- -----------------------------------------------------
 
---
--- AUTO_INCREMENT de la tabla `ventas`
---
-ALTER TABLE `ventas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-COMMIT;
+-- Usuarios (password en texto plano para pruebas)
+INSERT INTO `usuario` (`usuario`, `password`, `nombre`, `email`, `rol`, `area`, `permisos`) VALUES
+('admin', 'admin123', 'Administrador', 'admin@institucion.edu', 'admin', 'Sistemas', '["all"]'),
+('inventario', 'inventario123', 'Encargado de Inventario', 'inventario@institucion.edu', 'inventario', 'Almacén', '["gestionar_bienes", "desplazar", "reportes"]'),
+('usuario', 'usuario123', 'Usuario Regular', 'usuario@institucion.edu', 'usuario', 'Contabilidad', '["ver_bienes", "ver_reportes"]');
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- Personas
+INSERT INTO `persona` (`nombre`, `area`, `cargo`, `estado`) VALUES
+('Juan Pérez', 'Sistemas', 'Analista', 'Activo'),
+('María García', 'Contabilidad', 'Contadora', 'Activo'),
+('Carlos López', 'Logística', 'Jefe de Almacén', 'Activo'),
+('Ana Martínez', 'RRHH', 'Asistente', 'Activo');
+
+-- Bienes de prueba
+INSERT INTO `bien` (`codigo_patrimonial`, `nombre`, `descripcion`, `estado`, `persona_id`, `fecha_registro`) VALUES
+('PC-001', 'Laptop HP EliteBook', 'Core i5, 8GB RAM, 256GB SSD', 'Operativo', 1, CURDATE()),
+('PC-002', 'Monitor Dell 24"', 'Monitor LED 24 pulgadas', 'Operativo', 1, CURDATE()),
+('MUE-001', 'Escritorio Ejecutivo', 'Madera, 1.5m x 0.7m', 'Bueno', 2, CURDATE()),
+('MUE-002', 'Silla Ergonómica', 'Silla giratoria con respaldo', 'Bueno', 2, CURDATE()),
+('EQ-001', 'Impresora Multifuncional', 'Láser, Wi-Fi', 'Operativo', 3, CURDATE()),
+('PC-003', 'Laptop Lenovo ThinkPad', 'Core i7, 16GB RAM', 'Operativo', NULL, CURDATE());
+
+-- -----------------------------------------------------
+-- 8. VERIFICACIÓN FINAL
+-- -----------------------------------------------------
+SELECT '✅ BASE DE DATOS "patrimonio" CREADA CORRECTAMENTE' AS mensaje;
+SELECT '📊 Tablas creadas:' AS info;
+SHOW TABLES;
+
+SELECT '👥 Usuarios de prueba:' AS info;
+SELECT id, usuario, nombre, rol FROM usuario;
+
+SELECT '👤 Personas registradas:' AS info;
+SELECT id, nombre, area, estado FROM persona;
+
+SELECT '📦 Bienes registrados:' AS info;
+SELECT id, codigo_patrimonial, nombre, estado FROM bien;

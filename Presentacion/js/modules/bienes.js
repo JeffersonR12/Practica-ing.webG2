@@ -1,17 +1,7 @@
 /**
  * =====================================================
- * 📦 MÓDULO: GESTIÓN DE BIENES
+ * 📦 MÓDULO: GESTIÓN DE BIENES (VERSIÓN PRODUCCIÓN)
  * =====================================================
- * 
- * Maneja:
- * - Listado y filtrado de bienes
- * - Creación de nuevo bien
- * - Importación masiva desde Excel
- * 
- * 🔧 INTEGRACIÓN PHP:
- * - Los fetch actuales usan MockAPI (simulación)
- * - Cambiar a API.getBienes(), API.crearBien(), etc.
- * - Los endpoints esperados están en config.js
  */
 
 class BienesModule {
@@ -22,7 +12,6 @@ class BienesModule {
         this.currentPage = 1;
         this.itemsPerPage = CONFIG.UI.ITEMS_PER_PAGE;
         this.excelData = [];
-        this.validacionResultados = [];
         
         this.init();
     }
@@ -35,119 +24,108 @@ class BienesModule {
         this.renderizarPaginacion();
     }
     
-    // =============================================
-    // CARGA DE DATOS
-    // =============================================
     async cargarPersonas() {
         try {
-            // 🔧 CAMBIAR A: this.personas = await API.getPersonas();
-            this.personas = CONFIG.USE_MOCK ? 
-                await MockAPI.getPersonas() : 
-                await API.getPersonas();
-            
-            // Llenar selects
-            const filterPersona = document.getElementById('filterPersona');
-            const personaSelect = document.getElementById('personaAsignada');
-            
-            this.personas.filter(p => p.estado === 'Activo').forEach(persona => {
-                // Select de filtro
-                const option1 = document.createElement('option');
-                option1.value = persona.id;
-                option1.textContent = persona.nombre;
-                filterPersona.appendChild(option1);
-                
-                // Select del modal
-                const option2 = document.createElement('option');
-                option2.value = persona.id;
-                option2.textContent = persona.nombre;
-                personaSelect.appendChild(option2);
-            });
+            this.personas = await API.getPersonas();
+            this.llenarSelectsPersonas();
         } catch (error) {
-            Utils.showToast('Error al cargar personas: ' + error.message, 'error');
+            console.error('Error al cargar personas:', error);
+            Utils.showToast('Error al cargar personas', 'error');
+        }
+    }
+    
+    llenarSelectsPersonas() {
+        const filterPersona = document.getElementById('filterPersona');
+        const personaSelect = document.getElementById('personaAsignada');
+        
+        if (filterPersona) {
+            this.personas.filter(p => p.estado === 'Activo').forEach(persona => {
+                const option = document.createElement('option');
+                option.value = persona.id;
+                option.textContent = persona.nombre;
+                filterPersona.appendChild(option);
+            });
+        }
+        
+        if (personaSelect) {
+            this.personas.filter(p => p.estado === 'Activo').forEach(persona => {
+                const option = document.createElement('option');
+                option.value = persona.id;
+                option.textContent = persona.nombre;
+                personaSelect.appendChild(option);
+            });
         }
     }
     
     async cargarBienes() {
         try {
-            // 🔧 CAMBIAR A: this.bienes = await API.getBienes();
-            this.bienes = CONFIG.USE_MOCK ? 
-                await MockAPI.getBienes() : 
-                await API.getBienes();
-            
+            this.bienes = await API.getBienes();
             this.filteredBienes = [...this.bienes];
         } catch (error) {
-            Utils.showToast('Error al cargar bienes: ' + error.message, 'error');
+            console.error('Error al cargar bienes:', error);
+            Utils.showToast('Error al cargar bienes', 'error');
+            this.bienes = [];
+            this.filteredBienes = [];
         }
     }
     
-    // =============================================
-    // EVENT LISTENERS
-    // =============================================
     setupEventListeners() {
-        // Botones principales
-        document.getElementById('btnNuevoBien').addEventListener('click', () => this.abrirModalNuevoBien());
-        document.getElementById('btnImportarExcel').addEventListener('click', () => this.abrirModalImportar());
+        document.getElementById('btnNuevoBien')?.addEventListener('click', () => this.abrirModalNuevoBien());
+        document.getElementById('btnImportarExcel')?.addEventListener('click', () => this.abrirModalImportar());
+        document.getElementById('formNuevoBien')?.addEventListener('submit', (e) => this.guardarNuevoBien(e));
         
-        // Formulario nuevo bien
-        document.getElementById('formNuevoBien').addEventListener('submit', (e) => this.guardarNuevoBien(e));
+        document.getElementById('searchInput')?.addEventListener('input', () => this.filtrarBienes());
+        document.getElementById('filterEstado')?.addEventListener('change', () => this.filtrarBienes());
+        document.getElementById('filterPersona')?.addEventListener('change', () => this.filtrarBienes());
         
-        // Filtros
-        document.getElementById('searchInput').addEventListener('input', () => this.filtrarBienes());
-        document.getElementById('filterEstado').addEventListener('change', () => this.filtrarBienes());
-        document.getElementById('filterPersona').addEventListener('change', () => this.filtrarBienes());
-        
-        // Importación Excel
-        this.setupExcelListeners();
-        
-        // Modales (cerrar)
         document.querySelectorAll('.close, .close-modal').forEach(el => {
             el.addEventListener('click', () => this.cerrarModales());
         });
+        
+        this.setupExcelListeners();
     }
     
     setupExcelListeners() {
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('excelFileInput');
         
-        uploadArea.addEventListener('click', () => fileInput.click());
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file) this.procesarExcel(file);
-        });
+        if (uploadArea && fileInput) {
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file) this.procesarExcel(file);
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) this.procesarExcel(file);
+            });
+        }
         
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) this.procesarExcel(file);
-        });
-        
-        document.getElementById('btnConfirmarImport').addEventListener('click', () => this.confirmarImportacion());
-        document.getElementById('downloadTemplate').addEventListener('click', (e) => {
-            e.preventDefault();
-            this.descargarPlantilla();
-        });
+        document.getElementById('btnConfirmarImport')?.addEventListener('click', () => this.confirmarImportacion());
     }
     
-    // =============================================
-    // FILTRADO Y RENDERIZADO
-    // =============================================
     filtrarBienes() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const estado = document.getElementById('filterEstado').value;
-        const personaId = document.getElementById('filterPersona').value;
+        const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const estado = document.getElementById('filterEstado')?.value || '';
+        const personaId = document.getElementById('filterPersona')?.value || '';
         
         this.filteredBienes = this.bienes.filter(bien => {
+            const codigo = bien.cod_patrimonial || bien.codigo_patrimonial || '';
+            const nombre = bien.nombre || '';
+            
             const matchSearch = !searchTerm || 
-                bien.cod_patrimonial.toLowerCase().includes(searchTerm) ||
-                bien.nombre.toLowerCase().includes(searchTerm);
+                codigo.toLowerCase().includes(searchTerm) ||
+                nombre.toLowerCase().includes(searchTerm);
             const matchEstado = !estado || bien.estado === estado;
             const matchPersona = !personaId || bien.persona_id == personaId;
             
@@ -161,6 +139,8 @@ class BienesModule {
     
     renderizarTabla() {
         const tbody = document.getElementById('bienesTableBody');
+        if (!tbody) return;
+        
         const start = (this.currentPage - 1) * this.itemsPerPage;
         const end = start + this.itemsPerPage;
         const paginaBienes = this.filteredBienes.slice(start, end);
@@ -172,14 +152,13 @@ class BienesModule {
         
         tbody.innerHTML = paginaBienes.map(bien => `
             <tr>
-                <td><strong>${bien.cod_patrimonial}</strong></td>
+                <td><strong>${bien.cod_patrimonial || bien.codigo_patrimonial}</strong></td>
                 <td>${bien.nombre}</td>
                 <td>${bien.descripcion || '-'}</td>
                 <td><span class="badge badge-${this.getEstadoClass(bien.estado)}">${bien.estado}</span></td>
-                <td>${bien.persona_nombre || 'No asignado'}</td>
+                <td>${bien.persona_nombre || bien.persona || 'No asignado'}</td>
                 <td class="action-cell">
                     <button class="btn-icon" onclick="bienesModule.verHistorial(${bien.id})" title="Ver historial">📋</button>
-                    <!-- 🔧 PHP: Acciones adicionales (editar, dar de baja) -->
                 </td>
             </tr>
         `).join('');
@@ -199,6 +178,7 @@ class BienesModule {
     renderizarPaginacion() {
         const totalPages = Math.ceil(this.filteredBienes.length / this.itemsPerPage);
         const pagination = document.getElementById('pagination');
+        if (!pagination) return;
         
         if (totalPages <= 1) {
             pagination.innerHTML = '';
@@ -219,12 +199,11 @@ class BienesModule {
         this.renderizarPaginacion();
     }
     
-    // =============================================
-    // NUEVO BIEN
-    // =============================================
     abrirModalNuevoBien() {
-        document.getElementById('modalNuevoBien').style.display = 'block';
-        document.getElementById('formNuevoBien').reset();
+        const modal = document.getElementById('modalNuevoBien');
+        const form = document.getElementById('formNuevoBien');
+        if (modal) modal.style.display = 'block';
+        if (form) form.reset();
     }
     
     async guardarNuevoBien(event) {
@@ -232,36 +211,36 @@ class BienesModule {
         
         const formData = Utils.serializeForm(event.target);
         
-        // Validar código patrimonial
         if (!Utils.validarCodigoPatrimonial(formData.cod_patrimonial)) {
             Utils.showToast('Código patrimonial inválido', 'error');
             return;
         }
         
         try {
-            // 🔧 CAMBIAR A: await API.crearBien(formData);
-            if (CONFIG.USE_MOCK) {
-                await MockAPI.crearBien(formData);
-            } else {
-                await API.crearBien(formData);
-            }
+            const response = await API.crearBien(formData);
             
-            Utils.showToast('✅ Bien registrado exitosamente', 'success');
-            this.cerrarModales();
-            await this.cargarBienes();
-            this.filtrarBienes();
+            if (response.success) {
+                Utils.showToast('✅ Bien registrado exitosamente', 'success');
+                this.cerrarModales();
+                await this.cargarBienes();
+                this.filtrarBienes();
+            } else {
+                Utils.showToast('❌ Error: ' + response.message, 'error');
+            }
         } catch (error) {
             Utils.showToast('❌ Error: ' + error.message, 'error');
         }
     }
     
-    // =============================================
-    // IMPORTACIÓN EXCEL
-    // =============================================
     abrirModalImportar() {
-        document.getElementById('modalImportarExcel').style.display = 'block';
-        document.getElementById('validationResults').style.display = 'none';
-        document.getElementById('btnConfirmarImport').disabled = true;
+        const modal = document.getElementById('modalImportarExcel');
+        const validationResults = document.getElementById('validationResults');
+        const btnConfirmar = document.getElementById('btnConfirmarImport');
+        
+        if (modal) modal.style.display = 'block';
+        if (validationResults) validationResults.style.display = 'none';
+        if (btnConfirmar) btnConfirmar.disabled = true;
+        
         this.excelData = [];
     }
     
@@ -290,17 +269,14 @@ class BienesModule {
             return;
         }
         
-        // Asumir primera fila como cabecera
-        const headers = rows[0];
         const dataRows = rows.slice(1);
-        
         this.validacionResultados = [];
         this.excelData = [];
         
-        const codigosExistentes = this.bienes.map(b => b.cod_patrimonial);
+        const codigosExistentes = this.bienes.map(b => b.cod_patrimonial || b.codigo_patrimonial);
         
         dataRows.forEach((row, index) => {
-            const filaNum = index + 2; // +2 por 0-index y cabecera
+            const filaNum = index + 2;
             const codigo = row[0]?.toString().trim() || '';
             const nombre = row[1]?.toString().trim() || '';
             const descripcion = row[2]?.toString().trim() || '';
@@ -309,15 +285,10 @@ class BienesModule {
             
             const errores = [];
             
-            // Validaciones según RF
             if (!codigo) errores.push('Código requerido');
-            else if (!Utils.validarCodigoPatrimonial(codigo)) errores.push('Formato inválido');
             else if (codigosExistentes.includes(codigo)) errores.push('Código duplicado');
-            
             if (!nombre) errores.push('Nombre requerido');
             if (!estado) errores.push('Estado requerido');
-            if (!personaId) errores.push('Persona ID requerido');
-            else if (!this.personas.find(p => p.id === personaId)) errores.push('Persona no existe');
             
             const esValido = errores.length === 0;
             
@@ -326,7 +297,6 @@ class BienesModule {
                 codigo,
                 nombre,
                 estado,
-                personaId,
                 errores,
                 esValido
             });
@@ -350,6 +320,8 @@ class BienesModule {
         const summaryDiv = document.getElementById('resultsSummary');
         const tbody = document.getElementById('resultsTableBody');
         
+        if (!resultadosDiv || !summaryDiv || !tbody) return;
+        
         const total = this.validacionResultados.length;
         const validos = this.validacionResultados.filter(r => r.esValido).length;
         const errores = total - validos;
@@ -372,52 +344,53 @@ class BienesModule {
         `).join('');
         
         resultadosDiv.style.display = 'block';
-        document.getElementById('btnConfirmarImport').disabled = validos === 0;
+        
+        const btnConfirmar = document.getElementById('btnConfirmarImport');
+        if (btnConfirmar) btnConfirmar.disabled = validos === 0;
     }
     
     async confirmarImportacion() {
-        if (this.excelData.length === 0) {
-            Utils.showToast('No hay datos válidos para importar', 'warning');
-            return;
-        }
+    if (this.excelData.length === 0) {
+        Utils.showToast('No hay datos válidos para importar', 'warning');
+        return;
+    }
+    
+    const fileInput = document.getElementById('excelFileInput');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        Utils.showToast('No hay archivo seleccionado', 'error');
+        return;
+    }
+    
+    try {
+        // Crear FormData para enviar archivo
+        const formData = new FormData();
+        formData.append('excel_file', file);
         
-        try {
-            // 🔧 CAMBIAR A: await API.importarBienes(this.excelData);
-            let resultado;
-            if (CONFIG.USE_MOCK) {
-                resultado = await MockAPI.importarBienes(this.excelData);
-            } else {
-                // Para API real, enviar archivo
-                const fileInput = document.getElementById('excelFileInput');
-                resultado = await API.importarBienes(fileInput.files[0]);
-            }
-            
-            Utils.showToast(`✅ Importación completada: ${this.excelData.length} bienes registrados`, 'success');
+        const url = CONFIG.API_BASE_URL + 'bienes.php?action=importar';
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const resultado = await response.json();
+        
+        if (resultado.success) {
+            Utils.showToast(`✅ Importación: ${resultado.exitos} exitosos, ${resultado.errores.length} errores`, 'success');
             this.cerrarModales();
             await this.cargarBienes();
             this.filtrarBienes();
-        } catch (error) {
-            Utils.showToast('❌ Error en la importación: ' + error.message, 'error');
+        } else {
+            Utils.showToast('❌ Error: ' + resultado.message, 'error');
         }
+    } catch (error) {
+        console.error('Error:', error);
+        Utils.showToast('❌ Error en la importación', 'error');
     }
+}
     
-    descargarPlantilla() {
-        // Crear plantilla Excel para descargar
-        const templateData = [
-            ['Código', 'Nombre', 'Descripción', 'Estado', 'Persona_ID'],
-            ['PC-001', 'Laptop HP', 'Core i5 8GB', 'Operativo', '1'],
-            ['MUE-001', 'Escritorio', 'Madera 1.5m', 'Bueno', '2']
-        ];
-        
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(templateData);
-        XLSX.utils.book_append_sheet(wb, ws, 'Plantilla');
-        XLSX.writeFile(wb, 'plantilla_bienes.xlsx');
-    }
-    
-    // =============================================
-    // UTILIDADES
-    // =============================================
     verHistorial(bienId) {
         window.location.href = `historial.html?bien_id=${bienId}`;
     }
@@ -429,9 +402,10 @@ class BienesModule {
     }
 }
 
-// Inicializar módulo cuando el DOM esté listo
 let bienesModule;
 document.addEventListener('DOMContentLoaded', () => {
-    bienesModule = new BienesModule();
-    window.bienesModule = bienesModule;
+    if (window.location.pathname.includes('bienes.html')) {
+        bienesModule = new BienesModule();
+        window.bienesModule = bienesModule;
+    }
 });

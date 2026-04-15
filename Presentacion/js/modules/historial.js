@@ -1,17 +1,7 @@
 /**
  * =====================================================
- * 📋 MÓDULO: HISTORIAL DE MOVIMIENTOS
+ * 📋 MÓDULO: HISTORIAL DE MOVIMIENTOS (PRODUCCIÓN)
  * =====================================================
- * 
- * Maneja:
- * - Consulta de historial por bien o persona
- * - Visualización en timeline y tabla
- * - Filtros por fecha
- * 
- * 🔧 INTEGRACIÓN PHP:
- * - GET historial.php?bien_id=X
- * - GET historial.php?persona_id=X
- * - GET historial.php?fecha_desde=X&fecha_hasta=Y
  */
 
 class HistorialModule {
@@ -31,60 +21,45 @@ class HistorialModule {
         this.verificarParametrosURL();
     }
     
-    /**
-     * Carga catálogos para los selects
-     */
     async cargarCatalogos() {
         try {
-            // 🔧 CAMBIAR A: API.getBienes() y API.getPersonas()
-            if (CONFIG.USE_MOCK) {
-                this.bienes = await MockAPI.getBienes();
-                this.personas = await MockAPI.getPersonas();
-            } else {
-                this.bienes = await API.getBienes();
-                this.personas = await API.getPersonas();
-            }
+            this.bienes = await API.getBienes();
+            this.personas = await API.getPersonas();
             
             this.llenarSelectBienes();
             this.llenarSelectPersonas();
-            
         } catch (error) {
-            Utils.showToast('Error al cargar catálogos: ' + error.message, 'error');
+            console.error('Error al cargar catálogos:', error);
+            Utils.showToast('Error al cargar datos', 'error');
         }
     }
     
-    /**
-     * Llena el select de bienes
-     */
     llenarSelectBienes() {
         const select = document.getElementById('selectBien');
+        if (!select) return;
+        
         Utils.populateSelect(select, this.bienes, 'id', 'cod_patrimonial', '-- Seleccionar bien --');
         
-        // Agregar nombre del bien al texto
         Array.from(select.options).forEach((opt, index) => {
             if (index > 0) {
                 const bien = this.bienes.find(b => b.id == opt.value);
                 if (bien) {
-                    opt.textContent = `${bien.cod_patrimonial} - ${bien.nombre}`;
+                    opt.textContent = `${bien.cod_patrimonial || bien.codigo_patrimonial} - ${bien.nombre}`;
                 }
             }
         });
     }
     
-    /**
-     * Llena el select de personas
-     */
     llenarSelectPersonas() {
         const select = document.getElementById('selectPersona');
-        Utils.populateSelect(select, this.personas.filter(p => p.estado === 'Activo'), 'id', 'nombre', '-- Seleccionar persona --');
+        if (!select) return;
+        
+        const personasActivas = this.personas.filter(p => p.estado === 'Activo');
+        Utils.populateSelect(select, personasActivas, 'id', 'nombre', '-- Seleccionar persona --');
     }
     
-    /**
-     * Configura event listeners
-     */
     setupEventListeners() {
-        // Búsqueda por bien
-        document.getElementById('selectBien').addEventListener('change', (e) => {
+        document.getElementById('selectBien')?.addEventListener('change', (e) => {
             const bienId = e.target.value;
             if (bienId) {
                 document.getElementById('selectPersona').value = '';
@@ -95,8 +70,7 @@ class HistorialModule {
             }
         });
         
-        // Búsqueda por persona
-        document.getElementById('selectPersona').addEventListener('change', (e) => {
+        document.getElementById('selectPersona')?.addEventListener('change', (e) => {
             const personaId = e.target.value;
             if (personaId) {
                 document.getElementById('selectBien').value = '';
@@ -107,20 +81,15 @@ class HistorialModule {
             }
         });
         
-        // Botón filtrar
-        document.getElementById('btnFiltrarHistorial').addEventListener('click', () => {
+        document.getElementById('btnFiltrarHistorial')?.addEventListener('click', () => {
             this.filtrarPorFechas();
         });
         
-        // Botón limpiar
-        document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
+        document.getElementById('btnLimpiarFiltros')?.addEventListener('click', () => {
             this.limpiarFiltros();
         });
     }
     
-    /**
-     * Verifica si hay parámetros en la URL (ej: historial.html?bien_id=5)
-     */
     verificarParametrosURL() {
         const params = new URLSearchParams(window.location.search);
         const bienId = params.get('bien_id');
@@ -135,91 +104,39 @@ class HistorialModule {
         }
     }
     
-    /**
-     * Carga historial de un bien específico
-     * 🔧 PHP: GET historial.php?bien_id=X
-     */
     async cargarHistorialPorBien(bienId) {
         try {
-            // 🔧 CAMBIAR A: const historial = await API.getHistorialBien(bienId);
-            let historial;
-            if (CONFIG.USE_MOCK) {
-                historial = await MockAPI.getHistorialBien(bienId);
-            } else {
-                historial = await API.getHistorialBien(bienId);
-            }
-            
+            this.historial = await API.getHistorialBien(bienId);
             this.bienSeleccionado = this.bienes.find(b => b.id == bienId);
-            this.historial = historial;
             
             this.mostrarInfoBien();
             this.renderizarTimeline();
             this.renderizarTabla();
-            
         } catch (error) {
-            Utils.showToast('Error al cargar historial: ' + error.message, 'error');
+            console.error('Error al cargar historial:', error);
+            Utils.showToast('Error al cargar historial', 'error');
+            this.historial = [];
         }
     }
     
-    /**
-     * Carga historial de movimientos de una persona
-     * 🔧 PHP: GET historial.php?persona_id=X
-     */
     async cargarHistorialPorPersona(personaId) {
         try {
-            // 🔧 CAMBIAR A: const historial = await API.getHistorialPersona(personaId);
-            let historial;
-            if (CONFIG.USE_MOCK) {
-                historial = await this.getMockHistorialPersona(personaId);
-            } else {
-                // historial = await API.getHistorialPersona(personaId);
-                historial = await this.getMockHistorialPersona(personaId);
-            }
-            
+            this.historial = await API.getHistorialPersona(personaId);
             this.personaSeleccionada = this.personas.find(p => p.id == personaId);
-            this.historial = historial;
             
             this.ocultarInfoBien();
             this.renderizarTimeline();
             this.renderizarTabla();
-            
         } catch (error) {
-            Utils.showToast('Error al cargar historial: ' + error.message, 'error');
+            console.error('Error al cargar historial:', error);
+            Utils.showToast('Error al cargar historial', 'error');
+            this.historial = [];
         }
     }
     
-    /**
-     * Mock de historial por persona
-     */
-    async getMockHistorialPersona(personaId) {
-        const persona = this.personas.find(p => p.id == personaId);
-        const bienesPersona = this.bienes.filter(b => b.persona_id == personaId);
-        
-        let historial = [];
-        bienesPersona.forEach(bien => {
-            historial.push({
-                id: historial.length + 1,
-                fecha: '2024-03-01T09:00:00',
-                bien_id: bien.id,
-                bien_codigo: bien.cod_patrimonial,
-                bien_nombre: bien.nombre,
-                accion: 'ASIGNACION',
-                persona_anterior: 'Almacén',
-                persona_nueva: persona.nombre,
-                motivo: 'Asignación inicial',
-                observacion: 'Entrega de equipo'
-            });
-        });
-        
-        return historial.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-    }
-    
-    /**
-     * Filtra por rango de fechas
-     */
     filtrarPorFechas() {
-        const fechaDesde = document.getElementById('fechaDesde').value;
-        const fechaHasta = document.getElementById('fechaHasta').value;
+        const fechaDesde = document.getElementById('fechaDesde')?.value;
+        const fechaHasta = document.getElementById('fechaHasta')?.value;
         
         if (!fechaDesde && !fechaHasta) {
             Utils.showToast('Seleccione al menos una fecha', 'warning');
@@ -246,14 +163,16 @@ class HistorialModule {
         Utils.showToast(`Mostrando ${historialFiltrado.length} registros`, 'info');
     }
     
-    /**
-     * Limpia todos los filtros
-     */
     limpiarFiltros() {
-        document.getElementById('selectBien').value = '';
-        document.getElementById('selectPersona').value = '';
-        document.getElementById('fechaDesde').value = '';
-        document.getElementById('fechaHasta').value = '';
+        const selectBien = document.getElementById('selectBien');
+        const selectPersona = document.getElementById('selectPersona');
+        const fechaDesde = document.getElementById('fechaDesde');
+        const fechaHasta = document.getElementById('fechaHasta');
+        
+        if (selectBien) selectBien.value = '';
+        if (selectPersona) selectPersona.value = '';
+        if (fechaDesde) fechaDesde.value = '';
+        if (fechaHasta) fechaHasta.value = '';
         
         this.bienSeleccionado = null;
         this.personaSeleccionada = null;
@@ -262,46 +181,43 @@ class HistorialModule {
         this.limpiarVista();
     }
     
-    /**
-     * Limpia la vista
-     */
     limpiarVista() {
         this.ocultarInfoBien();
         
         const timeline = document.getElementById('timelineHistorial');
-        timeline.innerHTML = '<p class="text-center">Seleccione un bien o persona para ver su historial</p>';
+        if (timeline) {
+            timeline.innerHTML = '<p class="text-center">Seleccione un bien o persona para ver su historial</p>';
+        }
         
         const tbody = document.getElementById('historialTableBody');
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Utilice los filtros para buscar movimientos</td></tr>';
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Utilice los filtros para buscar movimientos</td></tr>';
+        }
     }
     
-    /**
-     * Muestra información del bien seleccionado
-     */
     mostrarInfoBien() {
         if (!this.bienSeleccionado) return;
         
         const card = document.getElementById('bienInfoCard');
+        if (!card) return;
+        
         card.style.display = 'block';
         
-        document.getElementById('infoCodigo').textContent = this.bienSeleccionado.cod_patrimonial;
+        document.getElementById('infoCodigo').textContent = this.bienSeleccionado.cod_patrimonial || this.bienSeleccionado.codigo_patrimonial;
         document.getElementById('infoNombre').textContent = this.bienSeleccionado.nombre;
         document.getElementById('infoEstado').textContent = this.bienSeleccionado.estado;
-        document.getElementById('infoPersonaActual').textContent = this.bienSeleccionado.persona_nombre || 'No asignado';
+        document.getElementById('infoPersonaActual').textContent = this.bienSeleccionado.persona_nombre || this.bienSeleccionado.persona || 'No asignado';
     }
     
-    /**
-     * Oculta información del bien
-     */
     ocultarInfoBien() {
-        document.getElementById('bienInfoCard').style.display = 'none';
+        const card = document.getElementById('bienInfoCard');
+        if (card) card.style.display = 'none';
     }
     
-    /**
-     * Renderiza el timeline visual
-     */
     renderizarTimeline(historialData = null) {
         const timeline = document.getElementById('timelineHistorial');
+        if (!timeline) return;
+        
         const data = historialData || this.historial;
         
         if (!data || data.length === 0) {
@@ -321,15 +237,9 @@ class HistorialModule {
                         <span>${icono}</span>
                     </div>
                     <div class="timeline-content">
-                        <div class="timeline-date">
-                            ${Utils.formatDateTime(item.fecha)}
-                        </div>
-                        <div class="timeline-title">
-                            ${this.getTituloAccion(item)}
-                        </div>
-                        <div class="timeline-details">
-                            ${this.getDetallesAccion(item)}
-                        </div>
+                        <div class="timeline-date">${Utils.formatDateTime(item.fecha)}</div>
+                        <div class="timeline-title">${this.getTituloAccion(item)}</div>
+                        <div class="timeline-details">${this.getDetallesAccion(item)}</div>
                         ${item.observacion ? `<div class="timeline-note">📝 ${item.observacion}</div>` : ''}
                     </div>
                 </div>
@@ -339,9 +249,6 @@ class HistorialModule {
         timeline.innerHTML = html;
     }
     
-    /**
-     * Obtiene icono según tipo de acción
-     */
     getIconoAccion(accion) {
         const iconos = {
             'REGISTRO_INICIAL': '📦',
@@ -354,9 +261,6 @@ class HistorialModule {
         return iconos[accion] || '📋';
     }
     
-    /**
-     * Obtiene color según tipo de acción
-     */
     getColorAccion(accion) {
         const colores = {
             'REGISTRO_INICIAL': '#2563eb',
@@ -369,20 +273,14 @@ class HistorialModule {
         return colores[accion] || '#64748b';
     }
     
-    /**
-     * Obtiene título de la acción
-     */
     getTituloAccion(item) {
         if (this.bienSeleccionado) {
             return `${item.accion} - ${item.motivo || ''}`;
         } else {
-            return `${item.accion} - ${item.bien_codigo} (${item.bien_nombre})`;
+            return `${item.accion} - ${item.bien_codigo || item.codigo_patrimonial || ''} (${item.bien_nombre || item.nombre || ''})`;
         }
     }
     
-    /**
-     * Obtiene detalles de la acción
-     */
     getDetallesAccion(item) {
         if (this.bienSeleccionado) {
             return `De: ${item.persona_anterior || 'N/A'} → A: ${item.persona_nueva || 'N/A'}`;
@@ -391,11 +289,10 @@ class HistorialModule {
         }
     }
     
-    /**
-     * Renderiza la tabla de historial
-     */
     renderizarTabla(historialData = null) {
         const tbody = document.getElementById('historialTableBody');
+        if (!tbody) return;
+        
         const data = historialData || this.historial;
         
         if (!data || data.length === 0) {
@@ -405,8 +302,8 @@ class HistorialModule {
         
         tbody.innerHTML = data.map(item => {
             const bienInfo = this.bienSeleccionado 
-                ? `<strong>${this.bienSeleccionado.cod_patrimonial}</strong><br><small>${this.bienSeleccionado.nombre}</small>`
-                : `<strong>${item.bien_codigo || 'N/A'}</strong><br><small>${item.bien_nombre || ''}</small>`;
+                ? `<strong>${this.bienSeleccionado.cod_patrimonial || this.bienSeleccionado.codigo_patrimonial}</strong><br><small>${this.bienSeleccionado.nombre}</small>`
+                : `<strong>${item.codigo_patrimonial || item.bien_codigo || 'N/A'}</strong><br><small>${item.nombre || item.bien_nombre || ''}</small>`;
             
             return `
                 <tr>
@@ -427,9 +324,10 @@ class HistorialModule {
     }
 }
 
-// Inicializar módulo
 let historialModule;
 document.addEventListener('DOMContentLoaded', () => {
-    historialModule = new HistorialModule();
-    window.historialModule = historialModule;
+    if (window.location.pathname.includes('historial.html')) {
+        historialModule = new HistorialModule();
+        window.historialModule = historialModule;
+    }
 });

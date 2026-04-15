@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Sistema de Gestión Patrimonial</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/login.css">
-</head>
-<body class="login-body">
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/login.css" />
+  </head>
+  <body class="login-body">
     <!-- 
         🔧 BACKEND PHP: 
         - Este formulario envía a login.php (POST)
@@ -15,121 +15,147 @@
         - Inicia $_SESSION con datos del usuario
         - Redirige a dashboard.html si es exitoso
     -->
-    
+
     <div class="login-container">
-        <div class="login-card">
-            <!-- Logo / Título -->
-            <div class="login-header">
-                <div class="login-logo">🏛️</div>
-                <h1>Sistema Patrimonial</h1>
-                <p class="login-subtitle">Gestión de Bienes Patrimoniales</p>
-            </div>
-            
-            <!-- Mensajes de error/success -->
-            <div id="loginMessage" class="login-message" style="display: none;"></div>
-            
-            <!-- Formulario de Login -->
-            <form id="loginForm" class="login-form">
-                <!-- 
+      <div class="login-card">
+        <!-- Logo / Título -->
+        <div class="login-header">
+          <div class="login-logo">🏛️</div>
+          <h1>Sistema Patrimonial</h1>
+          <p class="login-subtitle">Gestión de Bienes Patrimoniales</p>
+        </div>
+
+        <!-- Mensajes de error/success -->
+        <div
+          id="loginMessage"
+          class="login-message"
+          style="display: none"
+        ></div>
+
+        <!-- Formulario de Login -->
+        <form id="loginForm" class="login-form">
+          <!-- 
                     🔧 PHP: action="php/login.php" method="POST"
                     El backend debe recibir: usuario, password
                 -->
-                
-                <div class="form-group">
-                    <label for="usuario">
-                        <span class="label-icon">👤</span>
-                        Usuario
-                    </label>
-                    <input type="text" 
-                           id="usuario" 
-                           name="usuario" 
-                           placeholder="Ingrese su usuario"
-                           required
-                           autocomplete="username">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">
-                        <span class="label-icon">🔒</span>
-                        Contraseña
-                    </label>
-                    <div class="password-input-wrapper">
-                        <input type="password" 
-                               id="password" 
-                               name="password" 
-                               placeholder="Ingrese su contraseña"
-                               required
-                               autocomplete="current-password">
-                        <button type="button" class="toggle-password" id="togglePassword" title="Mostrar contraseña">
-                            👁️
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox" id="rememberMe" name="remember_me">
-                        <span>Recordarme</span>
-                    </label>
-                    <a href="#" id="forgotPasswordLink" class="forgot-link">¿Olvidó su contraseña?</a>
-                </div>
-                
-                <button type="submit" class="btn-login" id="btnLogin">
-                    <span class="btn-text">Iniciar Sesión</span>
-                    <span class="btn-spinner" style="display: none;">⏳</span>
-                </button>
-            </form>
-            
-            <!-- Información adicional -->
-            <div class="login-footer">
-                <p class="system-info">
-                    <span class="version">v1.0.0</span>
-                    <span class="separator">|</span>
-                    <span>© 2024 Institución</span>
-                </p>
-                <p class="help-text">
-                    ¿Problemas para acceder? Contacte a Soporte Técnico
-                </p>
+
+          <div class="form-group">
+            <label for="usuario">
+              <span class="label-icon">👤</span>
+              Usuario
+            </label>
+            <input
+              type="text"
+              id="usuario"
+              name="usuario"
+              placeholder="Ingrese su usuario"
+              required
+              autocomplete="username"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">
+              <span class="label-icon">🔒</span>
+              Contraseña
+            </label>
+            <div class="password-input-wrapper">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Ingrese su contraseña"
+                required
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                id="togglePassword"
+                title="Mostrar contraseña"
+              >
+                👁️
+              </button>
             </div>
+          </div>
+
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox" id="rememberMe" name="remember_me" />
+              <span>Recordarme</span>
+            </label>
+            <a href="#" id="forgotPasswordLink" class="forgot-link"
+              >¿Olvidó su contraseña?</a
+            >
+          </div>
+
+          <button type="submit" class="btn-login" id="btnLogin">
+            <span class="btn-text">Iniciar Sesión</span>
+            <span class="btn-spinner" style="display: none">⏳</span>
+          </button>
+        </form>
+
+        <!-- Información adicional -->
+        <div class="login-footer">
+          <p class="system-info">
+            <span class="version">v1.0.0</span>
+            <span class="separator">|</span>
+            <span>© 2024 Institución</span>
+          </p>
+          <p class="help-text">
+            ¿Problemas para acceder? Contacte a Soporte Técnico
+          </p>
         </div>
+      </div>
     </div>
-    
+
     <!-- Modal: Recuperar Contraseña -->
     <div class="modal" id="modalRecuperarPassword">
-        <div class="modal-content modal-sm">
-            <div class="modal-header">
-                <h2>🔑 Recuperar Contraseña</h2>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <!-- 
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h2>🔑 Recuperar Contraseña</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <!-- 
                     🔧 PHP: Enviar a recuperar.php
                     Envía correo con enlace de reseteo
                 -->
-                <form id="recoveryForm">
-                    <div class="form-group">
-                        <label for="emailRecuperacion">Correo Electrónico</label>
-                        <input type="email" 
-                               id="emailRecuperacion" 
-                               name="email" 
-                               placeholder="ejemplo@institucion.edu"
-                               required>
-                    </div>
-                    <p class="recovery-info">
-                        Se enviará un enlace de recuperación a su correo electrónico registrado.
-                    </p>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Enviar Enlace</button>
-                        <button type="button" class="btn btn-secondary close-modal">Cancelar</button>
-                    </div>
-                </form>
+          <form id="recoveryForm">
+            <div class="form-group">
+              <label for="emailRecuperacion">Correo Electrónico</label>
+              <input
+                type="email"
+                id="emailRecuperacion"
+                name="email"
+                placeholder="ejemplo@institucion.edu"
+                required
+              />
             </div>
+            <p class="recovery-info">
+              Se enviará un enlace de recuperación a su correo electrónico
+              registrado.
+            </p>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                Enviar Enlace
+              </button>
+              <button type="button" class="btn btn-secondary close-modal">
+                Cancelar
+              </button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
-    
+
     <!-- Scripts -->
     <script src="js/config.js"></script>
+    <!-- 1º Configuración -->
+    <script src="js/api.js"></script>
+    <!-- 2º API (define window.API) -->
     <script src="js/utils.js"></script>
+    <!-- 3º Utilidades -->
     <script src="js/modules/login.js"></script>
-</body>
+  </body>
 </html>

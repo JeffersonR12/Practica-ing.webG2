@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Sistema de Gestión Patrimonial</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <!-- ============================================= -->
+    <!-- NAVEGACIÓN PRINCIPAL                         -->
+    <!-- ============================================= -->
+    <nav class="navbar">
+      <div class="nav-brand">
+        <a href="dashboard.html">🏛️ Sistema Patrimonial</a>
+      </div>
+      <ul class="nav-menu">
+        <li>
+          <a href="dashboard.html" class="nav-link active">📊 Dashboard</a>
+        </li>
+        <li><a href="pages/bienes.html" class="nav-link">📦 Bienes</a></li>
+        <li>
+          <a href="pages/desplazamiento.html" class="nav-link">🔄 Desplazar</a>
+        </li>
+        <li><a href="pages/reportes.html" class="nav-link">📊 Reportes</a></li>
+        <li>
+          <a href="pages/historial.html" class="nav-link">📋 Historial</a>
+        </li>
+      </ul>
+      <div class="nav-user">
+        <span id="userNameDisplay">👤 Administrador</span>
+        <div class="user-menu">
+          <button class="btn-icon" id="btnLogout" title="Cerrar sesión">
+            🚪
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ============================================= -->
+    <!-- CONTENIDO PRINCIPAL - DASHBOARD              -->
+    <!-- ============================================= -->
+    <main class="container">
+      <div class="page-header">
+        <h1>📊 Panel de Control</h1>
+        <p class="fecha-actual" id="fechaActual"></p>
+      </div>
+
+      <!-- ============================================= -->
+      <!-- TARJETAS DE RESUMEN (KPIs)                   -->
+      <!-- ============================================= -->
+      <div class="dashboard-cards">
+        <div class="card card-primary">
+          <div class="card-icon">📦</div>
+          <div class="card-content">
+            <h3>Total Bienes</h3>
+            <p class="card-value" id="total-bienes">--</p>
+            <small>Registrados en el sistema</small>
+          </div>
+        </div>
+
+        <div class="card card-success">
+          <div class="card-icon">👥</div>
+          <div class="card-content">
+            <h3>Personas Activas</h3>
+            <p class="card-value" id="total-personas">--</p>
+            <small>Con bienes asignados</small>
+          </div>
+        </div>
+
+        <div class="card card-warning">
+          <div class="card-icon">🔄</div>
+          <div class="card-content">
+            <h3>Desplazamientos Hoy</h3>
+            <p class="card-value" id="desplazamientos-hoy">--</p>
+            <small>Movimientos del día</small>
+          </div>
+        </div>
+
+        <div class="card card-info">
+          <div class="card-icon">📋</div>
+          <div class="card-content">
+            <h3>Desplazamientos Mes</h3>
+            <p class="card-value" id="desplazamientos-mes">--</p>
+            <small>Últimos 30 días</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================= -->
+      <!-- GRÁFICOS Y ESTADÍSTICAS                     -->
+      <!-- ============================================= -->
+      <div class="dashboard-row">
+        <!-- Gráfico: Bienes por Estado -->
+        <div class="dashboard-panel">
+          <div class="panel-header">
+            <h2>📈 Distribución de Bienes por Estado</h2>
+          </div>
+          <div class="panel-body">
+            <div id="grafico-estados" class="grafico-container">
+              <p class="text-center">Cargando datos...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico: Bienes por Área -->
+        <div class="dashboard-panel">
+          <div class="panel-header">
+            <h2>🏢 Bienes por Área</h2>
+          </div>
+          <div class="panel-body">
+            <div id="grafico-areas" class="grafico-container">
+              <p class="text-center">Cargando datos...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================= -->
+      <!-- ÚLTIMOS MOVIMIENTOS                         -->
+      <!-- ============================================= -->
+      <div class="dashboard-row">
+        <div class="dashboard-panel full-width">
+          <div class="panel-header">
+            <h2>🔄 Últimos Desplazamientos</h2>
+            <a href="pages/historial.html" class="btn-link">Ver todos →</a>
+          </div>
+          <div class="panel-body">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>N° Desplazamiento</th>
+                    <th>Fecha</th>
+                    <th>Persona Origen</th>
+                    <th>Persona Destino</th>
+                    <th>Cantidad Bienes</th>
+                    <th>Motivo</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="ultimos-desplazamientos">
+                  <tr>
+                    <td colspan="7" class="text-center">Cargando...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================= -->
+      <!-- BIENES SIN ASIGNAR / ACCIONES RÁPIDAS       -->
+      <!-- ============================================= -->
+      <div class="dashboard-row">
+        <div class="dashboard-panel">
+          <div class="panel-header panel-warning">
+            <h2>⚠️ Bienes sin Asignar</h2>
+            <a href="pages/bienes.html" class="btn-link">Gestionar →</a>
+          </div>
+          <div class="panel-body">
+            <div id="bienes-sin-asignar" class="alert-list">
+              <p class="text-center">Cargando...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-panel">
+          <div class="panel-header panel-info">
+            <h2>📋 Acciones Rápidas</h2>
+          </div>
+          <div class="panel-body">
+            <div class="quick-actions">
+              <a href="pages/bienes.html" class="quick-action-btn">
+                <span class="action-icon">➕</span>
+                <span>Registrar Bien</span>
+              </a>
+              <a href="pages/desplazamiento.html" class="quick-action-btn">
+                <span class="action-icon">🔄</span>
+                <span>Nuevo Desplazamiento</span>
+              </a>
+              <a href="pages/reportes.html" class="quick-action-btn">
+                <span class="action-icon">📄</span>
+                <span>Generar Reporte</span>
+              </a>
+              <button
+                class="quick-action-btn"
+                onclick="
+                  window.location.href = 'pages/bienes.html';
+                  setTimeout(
+                    () => document.getElementById('btnImportarExcel')?.click(),
+                    100,
+                  );
+                "
+              >
+                <span class="action-icon">📊</span>
+                <span>Importar Excel</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ============================================= -->
+    <!-- SCRIPTS                                      -->
+    <!-- ============================================= -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/modules/dashboard.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
