@@ -22,7 +22,7 @@ class LoginModule {
         if (token && sessionExpiry) {
             const now = new Date().getTime();
             if (now < parseInt(sessionExpiry)) {
-                window.location.href = 'pages/bienes.html';
+                window.location.href = 'dashboard.html';
             } else {
                 this.clearSession();
             }
@@ -89,7 +89,7 @@ class LoginModule {
                 this.showMessage('Inicio de sesión exitoso', 'success');
                 
                 setTimeout(() => {
-                    window.location.href = 'pages/bienes.html';
+                    window.location.href = 'dashboard.html';
                 }, 1000);
             } else {
                 this.showMessage(response.message || 'Usuario o contraseña incorrectos', 'error');
