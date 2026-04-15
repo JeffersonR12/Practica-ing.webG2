@@ -1,217 +1,264 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestión de Bienes - Sistema Patrimonial</title>
-    <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
     <nav class="navbar">
-        <div class="nav-brand"><a href="../index.html">🏛️ Sistema Patrimonial</a></div>
-        <ul class="nav-menu">
-            <li><a href="bienes.html" class="nav-link active">📦 Bienes</a></li>
-            <li><a href="desplazamiento.html" class="nav-link">🔄 Desplazar</a></li>
-            <li><a href="reportes.html" class="nav-link">📊 Reportes</a></li>
-            <li><a href="historial.html" class="nav-link">📋 Historial</a></li>
-        </ul>
+      <div class="nav-brand">
+        <a href="../index.html">🏛️ Sistema Patrimonial</a>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="../dashboard.html" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="bienes.html" class="nav-link active">📦 Bienes</a></li>
+        <li><a href="desplazamiento.html" class="nav-link">🔄 Desplazar</a></li>
+        <li><a href="reportes.html" class="nav-link">📊 Reportes</a></li>
+        <li><a href="historial.html" class="nav-link">📋 Historial</a></li>
+        <li id="menuUsuarios" style="display: none">
+          <a href="usuarios.html" class="nav-link">👥 Usuarios</a>
+        </li>
+      </ul>
     </nav>
 
     <main class="container">
-        <!-- ============================================= -->
-        <!-- CABECERA CON ACCIONES                        -->
-        <!-- ============================================= -->
-        <div class="page-header">
-            <h1>📦 Gestión de Bienes Patrimoniales</h1>
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="btnNuevoBien">➕ Nuevo Bien</button>
-                <button class="btn btn-secondary" id="btnImportarExcel">📊 Importar Excel</button>
-            </div>
+      <!-- ============================================= -->
+      <!-- CABECERA CON ACCIONES                        -->
+      <!-- ============================================= -->
+      <div class="page-header">
+        <h1>📦 Gestión de Bienes Patrimoniales</h1>
+        <div class="action-buttons">
+          <button class="btn btn-primary" id="btnNuevoBien">
+            ➕ Nuevo Bien
+          </button>
+          <button class="btn btn-secondary" id="btnImportarExcel">
+            📊 Importar Excel
+          </button>
         </div>
+      </div>
 
-        <!-- ============================================= -->
-        <!-- FILTROS DE BÚSQUEDA                          -->
-        <!-- ============================================= -->
-        <div class="filters-section">
-            <input type="text" id="searchInput" placeholder="🔍 Buscar por código o nombre..." class="search-input">
-            <select id="filterEstado" class="filter-select">
-                <option value="">Todos los estados</option>
-                <option value="Operativo">Operativo</option>
-                <option value="Bueno">Bueno</option>
-                <option value="Regular">Regular</option>
-                <option value="Malo">Malo</option>
-                <option value="Inoperativo">Inoperativo</option>
-            </select>
-            <select id="filterPersona" class="filter-select">
-                <option value="">Todas las personas</option>
-                <!-- Se llenará dinámicamente con JS -->
-            </select>
-        </div>
+      <!-- ============================================= -->
+      <!-- FILTROS DE BÚSQUEDA                          -->
+      <!-- ============================================= -->
+      <div class="filters-section">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="🔍 Buscar por código o nombre..."
+          class="search-input"
+        />
+        <select id="filterEstado" class="filter-select">
+          <option value="">Todos los estados</option>
+          <option value="Operativo">Operativo</option>
+          <option value="Bueno">Bueno</option>
+          <option value="Regular">Regular</option>
+          <option value="Malo">Malo</option>
+          <option value="Inoperativo">Inoperativo</option>
+        </select>
+        <select id="filterPersona" class="filter-select">
+          <option value="">Todas las personas</option>
+          <!-- Se llenará dinámicamente con JS -->
+        </select>
+      </div>
 
-        <!-- ============================================= -->
-        <!-- TABLA DE BIENES                              -->
-        <!-- ============================================= -->
-        <div class="table-container">
-            <table class="data-table" id="bienesTable">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Estado</th>
-                        <th>Persona Asignada</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="bienesTableBody">
-                    <tr><td colspan="6" class="text-center">Cargando...</td></tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Paginación -->
-        <div class="pagination" id="pagination"></div>
+      <!-- ============================================= -->
+      <!-- TABLA DE BIENES                              -->
+      <!-- ============================================= -->
+      <div class="table-container">
+        <table class="data-table" id="bienesTable">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+              <th>Persona Asignada</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="bienesTableBody">
+            <tr>
+              <td colspan="6" class="text-center">Cargando...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <div class="pagination" id="pagination"></div>
     </main>
 
     <!-- ============================================= -->
     <!-- MODAL: NUEVO BIEN                             -->
     <!-- ============================================= -->
     <div class="modal" id="modalNuevoBien">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>➕ Registrar Nuevo Bien</h2>
-                <span class="close">&times;</span>
-            </div>
-            <form id="formNuevoBien">
-                <!-- 
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>➕ Registrar Nuevo Bien</h2>
+          <span class="close">&times;</span>
+        </div>
+        <form id="formNuevoBien">
+          <!-- 
                     🔧 BACKEND PHP: Este formulario envía datos a bienes.php (POST)
                     Campos requeridos según RF:
                     - cod_patrimonial, nombre, descripcion, estado, persona_id
                 -->
-                <div class="form-group">
-                    <label for="codPatrimonial">Código Patrimonial *</label>
-                    <input type="text" id="codPatrimonial" name="cod_patrimonial" required 
-                           pattern="[A-Z0-9\-]{3,20}" 
-                           title="Código alfanumérico de 3-20 caracteres">
-                    <!-- 🔧 PHP: Validar unicidad en backend -->
-                </div>
-                
-                <div class="form-group">
-                    <label for="nombreBien">Nombre del Bien *</label>
-                    <input type="text" id="nombreBien" name="nombre" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="descripcionBien">Descripción</label>
-                    <textarea id="descripcionBien" name="descripcion" rows="3"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="estadoBien">Estado *</label>
-                    <select id="estadoBien" name="estado" required>
-                        <option value="">-- Seleccionar --</option>
-                        <option value="Operativo">Operativo</option>
-                        <option value="Bueno">Bueno</option>
-                        <option value="Regular">Regular</option>
-                        <option value="Malo">Malo</option>
-                        <option value="Inoperativo">Inoperativo</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="personaAsignada">Persona Asignada *</label>
-                    <select id="personaAsignada" name="persona_id" required>
-                        <option value="">-- Seleccionar persona --</option>
-                        <!-- Se llena dinámicamente con JS -->
-                    </select>
-                    <!-- 🔧 PHP: Esta relación crea FK hacia tabla persona -->
-                </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-success">💾 Guardar Bien</button>
-                    <button type="button" class="btn btn-secondary close-modal">Cancelar</button>
-                </div>
-            </form>
-        </div>
+          <div class="form-group">
+            <label for="codPatrimonial">Código Patrimonial *</label>
+            <input
+              type="text"
+              id="codPatrimonial"
+              name="cod_patrimonial"
+              required
+              pattern="[A-Z0-9\-]{3,20}"
+              title="Código alfanumérico de 3-20 caracteres"
+            />
+            <!-- 🔧 PHP: Validar unicidad en backend -->
+          </div>
+
+          <div class="form-group">
+            <label for="nombreBien">Nombre del Bien *</label>
+            <input type="text" id="nombreBien" name="nombre" required />
+          </div>
+
+          <div class="form-group">
+            <label for="descripcionBien">Descripción</label>
+            <textarea
+              id="descripcionBien"
+              name="descripcion"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="estadoBien">Estado *</label>
+            <select id="estadoBien" name="estado" required>
+              <option value="">-- Seleccionar --</option>
+              <option value="Operativo">Operativo</option>
+              <option value="Bueno">Bueno</option>
+              <option value="Regular">Regular</option>
+              <option value="Malo">Malo</option>
+              <option value="Inoperativo">Inoperativo</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="personaAsignada">Persona Asignada *</label>
+            <select id="personaAsignada" name="persona_id" required>
+              <option value="">-- Seleccionar persona --</option>
+              <!-- Se llena dinámicamente con JS -->
+            </select>
+            <!-- 🔧 PHP: Esta relación crea FK hacia tabla persona -->
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-success">
+              💾 Guardar Bien
+            </button>
+            <button type="button" class="btn btn-secondary close-modal">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- ============================================= -->
     <!-- MODAL: IMPORTAR EXCEL                         -->
     <!-- ============================================= -->
     <div class="modal" id="modalImportarExcel">
-        <div class="modal-content modal-lg">
-            <div class="modal-header">
-                <h2>📊 Importar Bienes desde Excel</h2>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <!-- 
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h2>📊 Importar Bienes desde Excel</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <!-- 
                     🔧 BACKEND PHP: Este formulario envía archivo a bienes.php?action=importar
                     El backend debe procesar el Excel y devolver resultados
                 -->
-                <div class="upload-area" id="uploadArea">
-                    <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="display:none">
-                    <div class="upload-placeholder">
-                        <span>📁</span>
-                        <p>Arrastra tu archivo Excel aquí o haz clic para seleccionar</p>
-                        <small>Formatos soportados: .xlsx, .xls, .csv</small>
-                    </div>
-                </div>
-                
-                <!-- Plantilla de formato esperado -->
-                <div class="template-info">
-                    <p><strong>📋 Formato esperado del Excel:</strong></p>
-                    <table class="template-table">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Estado</th>
-                                <th>Persona ID</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="5" style="text-align:center">Columnas requeridas en el Excel</td></tr>
-                        </tbody>
-                    </table>
-                    <a href="#" id="downloadTemplate" class="btn-link">📥 Descargar plantilla</a>
-                </div>
-                
-                <!-- Resultados de validación -->
-                <div class="validation-results" id="validationResults" style="display:none">
-                    <h3>Resultados de Validación</h3>
-                    <div class="results-summary" id="resultsSummary"></div>
-                    <div class="results-table-container">
-                        <table class="results-table" id="resultsTable">
-                            <thead>
-                                <tr>
-                                    <th>Fila</th>
-                                    <th>Código</th>
-                                    <th>Nombre</th>
-                                    <th>Estado</th>
-                                    <th>Validación</th>
-                                </tr>
-                            </thead>
-                            <tbody id="resultsTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
+          <div class="upload-area" id="uploadArea">
+            <input
+              type="file"
+              id="excelFileInput"
+              accept=".xlsx,.xls,.csv"
+              style="display: none"
+            />
+            <div class="upload-placeholder">
+              <span>📁</span>
+              <p>Arrastra tu archivo Excel aquí o haz clic para seleccionar</p>
+              <small>Formatos soportados: .xlsx, .xls, .csv</small>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" id="btnConfirmarImport" disabled>✅ Confirmar Importación</button>
-                <button class="btn btn-secondary close-modal">Cancelar</button>
+          </div>
+
+          <!-- Plantilla de formato esperado -->
+          <div class="template-info">
+            <p><strong>📋 Formato esperado del Excel:</strong></p>
+            <table class="template-table">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Descripción</th>
+                  <th>Estado</th>
+                  <th>Persona ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="5" style="text-align: center">
+                    Columnas requeridas en el Excel
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <a href="#" id="downloadTemplate" class="btn-link"
+              >📥 Descargar plantilla</a
+            >
+          </div>
+
+          <!-- Resultados de validación -->
+          <div
+            class="validation-results"
+            id="validationResults"
+            style="display: none"
+          >
+            <h3>Resultados de Validación</h3>
+            <div class="results-summary" id="resultsSummary"></div>
+            <div class="results-table-container">
+              <table class="results-table" id="resultsTable">
+                <thead>
+                  <tr>
+                    <th>Fila</th>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Validación</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsTableBody"></tbody>
+              </table>
             </div>
+          </div>
         </div>
+        <div class="modal-footer">
+          <button class="btn btn-success" id="btnConfirmarImport" disabled>
+            ✅ Confirmar Importación
+          </button>
+          <button class="btn btn-secondary close-modal">Cancelar</button>
+        </div>
+      </div>
     </div>
 
     <!-- Scripts -->
     <script src="../js/config.js"></script>
     <!--<script src="../js/api-mock.js"></script>-->
-    <script src="../js/api.js"></script> 
+    <script src="../js/api.js"></script>
     <script src="../js/utils.js"></script>
     <!-- Librería para Excel -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="../js/modules/bienes.js"></script>
-</body>
+  </body>
 </html>

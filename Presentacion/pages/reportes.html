@@ -1,149 +1,166 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reportes - Sistema Patrimonial</title>
-    <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
     <nav class="navbar">
-        <div class="nav-brand"><a href="../index.html">🏛️ Sistema Patrimonial</a></div>
-        <ul class="nav-menu">
-            <li><a href="bienes.html" class="nav-link">📦 Bienes</a></li>
-            <li><a href="desplazamiento.html" class="nav-link">🔄 Desplazar</a></li>
-            <li><a href="reportes.html" class="nav-link active">📊 Reportes</a></li>
-            <li><a href="historial.html" class="nav-link">📋 Historial</a></li>
-        </ul>
+      <div class="nav-brand">
+        <a href="../index.html">🏛️ Sistema Patrimonial</a>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="../dashboard.html" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="bienes.html" class="nav-link">📦 Bienes</a></li>
+        <li><a href="desplazamiento.html" class="nav-link">🔄 Desplazar</a></li>
+        <li><a href="reportes.html" class="nav-link active">📊 Reportes</a></li>
+        <li><a href="historial.html" class="nav-link">📋 Historial</a></li>
+        <li id="menuUsuarios" style="display: none">
+          <a href="usuarios.html" class="nav-link">👥 Usuarios</a>
+        </li>
+      </ul>
     </nav>
 
     <main class="container">
-        <div class="page-header">
-            <h1>📊 Generación de Reportes</h1>
-        </div>
+      <div class="page-header">
+        <h1>📊 Generación de Reportes</h1>
+      </div>
 
-        <!-- 
+      <!-- 
             🔧 BACKEND PHP: Reportes generados por PHP (TCPDF/FPDF)
             Endpoints:
             - reportes.php?tipo=asignacion&persona_id=X
             - reportes.php?tipo=desplazamiento&fecha_desde=X&fecha_hasta=Y
         -->
 
-        <div class="reportes-grid">
-            <!-- Reporte 1: Asignación de Bienes por Persona -->
-            <div class="reporte-card">
-                <div class="reporte-icon">📋</div>
-                <h2>Reporte de Asignación de Bienes por Persona</h2>
-                <p>Genera un PDF con el listado de bienes asignados a una persona específica.</p>
-                
-                <div class="form-group">
-                    <label for="reportePersona">Seleccionar Persona:</label>
-                    <select id="reportePersona" class="form-control">
-                        <option value="">-- Seleccionar --</option>
-                    </select>
-                </div>
-                
-                <div class="reporte-actions">
-                    <button class="btn btn-primary" id="btnGenerarReporteAsignacion">
-                        📄 Generar PDF
-                    </button>
-                    <button class="btn btn-secondary" id="btnVistaPreviaAsignacion">
-                        👁️ Vista Previa
-                    </button>
-                </div>
-            </div>
+      <div class="reportes-grid">
+        <!-- Reporte 1: Asignación de Bienes por Persona -->
+        <div class="reporte-card">
+          <div class="reporte-icon">📋</div>
+          <h2>Reporte de Asignación de Bienes por Persona</h2>
+          <p>
+            Genera un PDF con el listado de bienes asignados a una persona
+            específica.
+          </p>
 
-            <!-- Reporte 2: Desplazamientos por Período -->
-            <div class="reporte-card">
-                <div class="reporte-icon">🔄</div>
-                <h2>Reporte de Desplazamientos</h2>
-                <p>Genera un PDF con el historial de desplazamientos en un período de fechas.</p>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="fechaDesdeReporte">Fecha Desde:</label>
-                        <input type="date" id="fechaDesdeReporte" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="fechaHastaReporte">Fecha Hasta:</label>
-                        <input type="date" id="fechaHastaReporte" class="form-control">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="motivoReporte">Filtrar por Motivo:</label>
-                    <select id="motivoReporte" class="form-control">
-                        <option value="">Todos los motivos</option>
-                        <option value="Renuncia">Renuncia</option>
-                        <option value="Cambio de área">Cambio de área</option>
-                        <option value="Reasignación">Reasignación</option>
-                        <option value="Préstamo">Préstamo</option>
-                    </select>
-                </div>
-                
-                <div class="reporte-actions">
-                    <button class="btn btn-primary" id="btnGenerarReporteDesplazamiento">
-                        📄 Generar PDF
-                    </button>
-                    <button class="btn btn-secondary" id="btnVistaPreviaDesplazamiento">
-                        👁️ Vista Previa
-                    </button>
-                </div>
-            </div>
+          <div class="form-group">
+            <label for="reportePersona">Seleccionar Persona:</label>
+            <select id="reportePersona" class="form-control">
+              <option value="">-- Seleccionar --</option>
+            </select>
+          </div>
 
-            <!-- Reporte 3: Inventario General -->
-            <div class="reporte-card">
-                <div class="reporte-icon">📊</div>
-                <h2>Inventario General</h2>
-                <p>Reporte completo de todos los bienes patrimoniales registrados.</p>
-                
-                <div class="form-group">
-                    <label for="estadoReporte">Filtrar por Estado:</label>
-                    <select id="estadoReporte" class="form-control">
-                        <option value="">Todos los estados</option>
-                        <option value="Operativo">Operativo</option>
-                        <option value="Bueno">Bueno</option>
-                        <option value="Regular">Regular</option>
-                        <option value="Malo">Malo</option>
-                        <option value="Inoperativo">Inoperativo</option>
-                    </select>
-                </div>
-                
-                <div class="reporte-actions">
-                    <button class="btn btn-primary" id="btnGenerarReporteInventario">
-                        📄 Generar PDF
-                    </button>
-                </div>
-            </div>
+          <div class="reporte-actions">
+            <button class="btn btn-primary" id="btnGenerarReporteAsignacion">
+              📄 Generar PDF
+            </button>
+            <button class="btn btn-secondary" id="btnVistaPreviaAsignacion">
+              👁️ Vista Previa
+            </button>
+          </div>
         </div>
+
+        <!-- Reporte 2: Desplazamientos por Período -->
+        <div class="reporte-card">
+          <div class="reporte-icon">🔄</div>
+          <h2>Reporte de Desplazamientos</h2>
+          <p>
+            Genera un PDF con el historial de desplazamientos en un período de
+            fechas.
+          </p>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fechaDesdeReporte">Fecha Desde:</label>
+              <input type="date" id="fechaDesdeReporte" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="fechaHastaReporte">Fecha Hasta:</label>
+              <input type="date" id="fechaHastaReporte" class="form-control" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="motivoReporte">Filtrar por Motivo:</label>
+            <select id="motivoReporte" class="form-control">
+              <option value="">Todos los motivos</option>
+              <option value="Renuncia">Renuncia</option>
+              <option value="Cambio de área">Cambio de área</option>
+              <option value="Reasignación">Reasignación</option>
+              <option value="Préstamo">Préstamo</option>
+            </select>
+          </div>
+
+          <div class="reporte-actions">
+            <button
+              class="btn btn-primary"
+              id="btnGenerarReporteDesplazamiento"
+            >
+              📄 Generar PDF
+            </button>
+            <button class="btn btn-secondary" id="btnVistaPreviaDesplazamiento">
+              👁️ Vista Previa
+            </button>
+          </div>
+        </div>
+
+        <!-- Reporte 3: Inventario General -->
+        <div class="reporte-card">
+          <div class="reporte-icon">📊</div>
+          <h2>Inventario General</h2>
+          <p>Reporte completo de todos los bienes patrimoniales registrados.</p>
+
+          <div class="form-group">
+            <label for="estadoReporte">Filtrar por Estado:</label>
+            <select id="estadoReporte" class="form-control">
+              <option value="">Todos los estados</option>
+              <option value="Operativo">Operativo</option>
+              <option value="Bueno">Bueno</option>
+              <option value="Regular">Regular</option>
+              <option value="Malo">Malo</option>
+              <option value="Inoperativo">Inoperativo</option>
+            </select>
+          </div>
+
+          <div class="reporte-actions">
+            <button class="btn btn-primary" id="btnGenerarReporteInventario">
+              📄 Generar PDF
+            </button>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- Modal Vista Previa -->
     <div class="modal" id="modalVistaPrevia">
-        <div class="modal-content modal-lg">
-            <div class="modal-header">
-                <h2>👁️ Vista Previa del Reporte</h2>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div id="vistaPreviaContent">
-                    <!-- Contenido dinámico de la vista previa -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" id="btnDescargarDesdePrevia">📥 Descargar PDF</button>
-                <button class="btn btn-secondary close-modal">Cerrar</button>
-            </div>
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h2>👁️ Vista Previa del Reporte</h2>
+          <span class="close">&times;</span>
         </div>
+        <div class="modal-body">
+          <div id="vistaPreviaContent">
+            <!-- Contenido dinámico de la vista previa -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-success" id="btnDescargarDesdePrevia">
+            📥 Descargar PDF
+          </button>
+          <button class="btn btn-secondary close-modal">Cerrar</button>
+        </div>
+      </div>
     </div>
 
     <!-- Scripts -->
     <script src="../js/config.js"></script>
     <!--<script src="../js/api-mock.js"></script>-->
-    <script src="../js/api.js"></script> 
+    <script src="../js/api.js"></script>
     <script src="../js/utils.js"></script>
     <!-- Librería para PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="../js/modules/reportes.js"></script>
-</body>
+  </body>
 </html>

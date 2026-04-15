@@ -1,103 +1,123 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Historial de Movimientos - Sistema Patrimonial</title>
-    <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
     <nav class="navbar">
-        <div class="nav-brand"><a href="../index.html">🏛️ Sistema Patrimonial</a></div>
-        <ul class="nav-menu">
-            <li><a href="bienes.html" class="nav-link">📦 Bienes</a></li>
-            <li><a href="desplazamiento.html" class="nav-link">🔄 Desplazar</a></li>
-            <li><a href="reportes.html" class="nav-link">📊 Reportes</a></li>
-            <li><a href="historial.html" class="nav-link active">📋 Historial</a></li>
-        </ul>
+      <div class="nav-brand">
+        <a href="../index.html">🏛️ Sistema Patrimonial</a>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="../dashboard.html" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="bienes.html" class="nav-link">📦 Bienes</a></li>
+        <li><a href="desplazamiento.html" class="nav-link">🔄 Desplazar</a></li>
+        <li><a href="reportes.html" class="nav-link">📊 Reportes</a></li>
+        <li>
+          <a href="historial.html" class="nav-link active">📋 Historial</a>
+        </li>
+        <li id="menuUsuarios" style="display: none">
+          <a href="usuarios.html" class="nav-link">👥 Usuarios</a>
+        </li>
+      </ul>
     </nav>
 
     <main class="container">
-        <div class="page-header">
-            <h1>📋 Historial de Movimientos</h1>
-        </div>
+      <div class="page-header">
+        <h1>📋 Historial de Movimientos</h1>
+      </div>
 
-        <!-- 
+      <!-- 
             🔧 BACKEND PHP: Esta vista consulta la tabla historial_bien
             Endpoint: historial.php?bien_id=X o historial.php?persona_id=Y
         -->
 
-        <!-- Filtros de búsqueda -->
-        <div class="filters-section">
-            <div class="filter-group">
-                <label>Buscar por Bien:</label>
-                <select id="selectBien" class="filter-select">
-                    <option value="">-- Seleccionar bien --</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Buscar por Persona:</label>
-                <select id="selectPersona" class="filter-select">
-                    <option value="">-- Seleccionar persona --</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Fecha Desde:</label>
-                <input type="date" id="fechaDesde">
-            </div>
-            <div class="filter-group">
-                <label>Fecha Hasta:</label>
-                <input type="date" id="fechaHasta">
-            </div>
-            <button class="btn btn-primary" id="btnFiltrarHistorial">🔍 Buscar</button>
-            <button class="btn btn-secondary" id="btnLimpiarFiltros">🔄 Limpiar</button>
+      <!-- Filtros de búsqueda -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label>Buscar por Bien:</label>
+          <select id="selectBien" class="filter-select">
+            <option value="">-- Seleccionar bien --</option>
+          </select>
         </div>
+        <div class="filter-group">
+          <label>Buscar por Persona:</label>
+          <select id="selectPersona" class="filter-select">
+            <option value="">-- Seleccionar persona --</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Fecha Desde:</label>
+          <input type="date" id="fechaDesde" />
+        </div>
+        <div class="filter-group">
+          <label>Fecha Hasta:</label>
+          <input type="date" id="fechaHasta" />
+        </div>
+        <button class="btn btn-primary" id="btnFiltrarHistorial">
+          🔍 Buscar
+        </button>
+        <button class="btn btn-secondary" id="btnLimpiarFiltros">
+          🔄 Limpiar
+        </button>
+      </div>
 
-        <!-- Información del bien seleccionado -->
-        <div class="bien-info-card" id="bienInfoCard" style="display:none">
-            <h3>📦 Información del Bien</h3>
-            <div class="info-grid">
-                <div><strong>Código:</strong> <span id="infoCodigo"></span></div>
-                <div><strong>Nombre:</strong> <span id="infoNombre"></span></div>
-                <div><strong>Estado:</strong> <span id="infoEstado"></span></div>
-                <div><strong>Asignado a:</strong> <span id="infoPersonaActual"></span></div>
-            </div>
+      <!-- Información del bien seleccionado -->
+      <div class="bien-info-card" id="bienInfoCard" style="display: none">
+        <h3>📦 Información del Bien</h3>
+        <div class="info-grid">
+          <div><strong>Código:</strong> <span id="infoCodigo"></span></div>
+          <div><strong>Nombre:</strong> <span id="infoNombre"></span></div>
+          <div><strong>Estado:</strong> <span id="infoEstado"></span></div>
+          <div>
+            <strong>Asignado a:</strong> <span id="infoPersonaActual"></span>
+          </div>
         </div>
+      </div>
 
-        <!-- Timeline de historial -->
-        <div class="timeline-container">
-            <h2>📅 Línea de Tiempo de Movimientos</h2>
-            <div class="timeline" id="timelineHistorial">
-                <p class="text-center">Seleccione un bien o persona para ver su historial</p>
-            </div>
+      <!-- Timeline de historial -->
+      <div class="timeline-container">
+        <h2>📅 Línea de Tiempo de Movimientos</h2>
+        <div class="timeline" id="timelineHistorial">
+          <p class="text-center">
+            Seleccione un bien o persona para ver su historial
+          </p>
         </div>
+      </div>
 
-        <!-- Tabla de historial (vista alternativa) -->
-        <div class="table-container">
-            <table class="data-table" id="historialTable">
-                <thead>
-                    <tr>
-                        <th>Fecha y Hora</th>
-                        <th>Bien</th>
-                        <th>Acción</th>
-                        <th>Persona Anterior</th>
-                        <th>Persona Nueva</th>
-                        <th>Motivo</th>
-                        <th>Observación</th>
-                    </tr>
-                </thead>
-                <tbody id="historialTableBody">
-                    <tr><td colspan="7" class="text-center">Utilice los filtros para buscar movimientos</td></tr>
-                </tbody>
-            </table>
-        </div>
+      <!-- Tabla de historial (vista alternativa) -->
+      <div class="table-container">
+        <table class="data-table" id="historialTable">
+          <thead>
+            <tr>
+              <th>Fecha y Hora</th>
+              <th>Bien</th>
+              <th>Acción</th>
+              <th>Persona Anterior</th>
+              <th>Persona Nueva</th>
+              <th>Motivo</th>
+              <th>Observación</th>
+            </tr>
+          </thead>
+          <tbody id="historialTableBody">
+            <tr>
+              <td colspan="7" class="text-center">
+                Utilice los filtros para buscar movimientos
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </main>
 
     <!-- Scripts -->
     <script src="../js/config.js"></script>
     <!--<script src="../js/api-mock.js"></script>-->
-    <script src="../js/api.js"></script> 
+    <script src="../js/api.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/modules/historial.js"></script>
-</body>
+  </body>
 </html>
