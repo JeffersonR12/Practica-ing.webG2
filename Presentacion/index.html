@@ -100,7 +100,7 @@
           sessionStorage.getItem("session_expiry");
 
         if (token && expiry && new Date().getTime() < parseInt(expiry)) {
-          window.location.href = "pages/bienes.html";
+          window.location.href = "pages/dashboard.html";
         } else {
           setTimeout(() => {
             window.location.href = "login.html";
