@@ -221,7 +221,7 @@ async abrirModalAsignacionInicial(bienId) {
                         <span class="close" onclick="dashboardModule.cerrarModalAsignacion()">&times;</span>
                     </div>
                     <div class="modal-body">
-                        <div class="bien-info-card" style="background: #f1f5f9; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <div class="bien-info-card" style="background: #2ca17e; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
                             <p><strong>🏷️ Código:</strong> ${bien.codigo_patrimonial || bien.cod_patrimonial}</p>
                             <p><strong>📦 Nombre:</strong> ${bien.nombre}</p>
                             <p><strong>📝 Descripción:</strong> ${bien.descripcion || 'N/A'}</p>
