@@ -82,6 +82,15 @@ class BienesModule {
             el.addEventListener('click', () => this.cerrarModales());
         });
         
+        // ✅ Agregar evento para descargar plantilla
+        const downloadTemplate = document.getElementById('downloadTemplate');
+        if (downloadTemplate) {
+            downloadTemplate.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.descargarPlantilla();
+            });
+        }
+
         this.setupExcelListeners();
     }
     
@@ -395,6 +404,39 @@ class BienesModule {
         window.location.href = `historial.html?bien_id=${bienId}`;
     }
     
+
+    descargarPlantilla() {
+    // Datos de ejemplo para la plantilla
+    const templateData = [
+        ['Código', 'Nombre', 'Descripción', 'Estado', 'Persona ID'],
+        
+        ['', '', '', '', ''] // Fila vacía para más datos
+    ];
+    
+    // Crear libro de Excel
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(templateData);
+    
+    // Ajustar ancho de columnas
+    ws['!cols'] = [
+        { wch: 15 },  // Código
+        { wch: 25 },  // Nombre
+        { wch: 35 },  // Descripción
+        { wch: 15 },  // Estado
+        { wch: 12 }   // Persona ID
+    ];
+    
+    // Agregar hoja al libro
+    XLSX.utils.book_append_sheet(wb, ws, 'Plantilla');
+    
+    // Descargar archivo
+    XLSX.writeFile(wb, 'Plantilla_importacion_bienes.xlsx');
+    
+    Utils.showToast('📥 Plantilla descargada correctamente', 'success');
+    }
+
+
+
     cerrarModales() {
         document.querySelectorAll('.modal').forEach(modal => {
             modal.style.display = 'none';
@@ -409,3 +451,4 @@ document.addEventListener('DOMContentLoaded', () => {
         window.bienesModule = bienesModule;
     }
 });
+
